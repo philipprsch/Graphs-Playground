@@ -3,6 +3,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,7 +34,10 @@ public class NetworkTests {
         graph.addEdge("V4", "V3", 3.0);
         graph.addEdge("V4", "T", 2.0);
 
-        Map<Edge<String>, Double> flow = graph.getZeroFlow();
+        long seed = 12345L;
+        Random random = new Random(seed);
+
+        Map<Edge<String>, Double> flow = graph.generateFlow(e -> (double) (random.nextInt(e.getWeight().intValue() + 1)));
 
         Graph<String, Edge<String>> augmentingNetwork = graph.getAugmentingNetwork(flow);
 

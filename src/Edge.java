@@ -1,4 +1,4 @@
-public class Edge<T> {
+public class Edge<T> implements GraphvizComponent {
     private final Node<T> from;
     private final Node<T> to;
     private final Double weight;
@@ -34,5 +34,12 @@ public class Edge<T> {
         return isWeighted()
                 ? from + " --(" + weight + ")--> " + to
                 : from + " --> " + to;
+    }
+
+    @Override
+    public String toGraphviz() {
+        return isWeighted()
+                ? "C: " + weight
+                : "null";
     }
 }

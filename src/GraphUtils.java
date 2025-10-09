@@ -41,8 +41,11 @@ public class GraphUtils {
 
         return newGraph;
     }
+    public static <T, E extends Edge<T> & GraphvizComponent> String toGraphviz(Graph<T, E> graph) {
+        return toGraphviz(graph, (e) -> "");
+    }
 
-    public static <T, E extends Edge<T>> String toGraphviz(Graph<T, E> graph, Function <E, String> extraEdgeInformer) {
+    public static <T, E extends Edge<T> & GraphvizComponent> String toGraphviz(Graph<T, E> graph, Function <E, String> extraEdgeInformer) {
         boolean directed = graph instanceof DirectedGraph;
 
         StringBuilder sb = new StringBuilder();
@@ -64,7 +67,7 @@ public class GraphUtils {
 
             sb.append("  \"").append(from).append("\" ")
                     .append(connector).append(" \"").append(to).append("\" ")
-                    .append("[label=\"").append(escape(edge.toString() + " " + extraEdgeInformer.apply(edge))).append("\"];\n");
+                    .append("[label=\"").append(escape(edge.toGraphviz() + " " + extraEdgeInformer.apply(edge))).append("\"];\n");
         }
 
         sb.append("}\n");

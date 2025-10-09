@@ -72,11 +72,12 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
                 },
                 DirectedGraph::new);
 
+        Collection<Edge<T>> augNetNewEdges = new LinkedList<>();
         for (Edge<T> edge : augmentingNetwork.getEdges()) {
             AugmentingEdge<T> augEdge = ((AugmentingEdge<T>) edge);
             Double edgeFlow = flow.get(augEdge.getOriginalEdge());
             if (edgeFlow > 0) {
-                augmentingNetwork.addExistingEdge(new AugmentingEdge<>(
+                augNetNewEdges.add(new AugmentingEdge<>(
                         edge.getTo(),
                         edge.getFrom(),
                         edgeFlow,
@@ -84,23 +85,43 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
                         true));
             }
         }
+        for (Edge<T> edge : augNetNewEdges) {
+            augmentingNetwork.addExistingEdge(edge);
+        }
         return augmentingNetwork;
     }
     private void augmentAlongPath(Map<Edge<T>, Double> flow, Path<T> augmentingPath) {
-
+        double gamma = augmentingPath.getEdges().stream().min(Comparator.comparingDouble(Edge::getWeight)).orElseThrow().getWeight();
+        augmentingPath.getEdges().forEach(e -> {
+            AugmentingEdge<T> augEdge = (AugmentingEdge<T>) e;
+            assert flow.containsKey(augEdge.getOriginalEdge()) : "Tried to augment non-existent Edge";
+            flow.computeIfPresent(augEdge.getOriginalEdge(), (k, v) -> {
+              return (augEdge.isBackFlow() ? v - gamma : v + gamma);
+            });
+        });
     }
 
     public Map<Edge<T>, Double> getZeroFlow() {
+        return generateFlow(e -> 0.0);
+    }
+    public Map<Edge<T>, Double> generateFlow(Function<Edge<T>, Double> generator) {
         Map<Edge<T>, Double> flow = new HashMap<>();
-        this.getEdges().forEach((e) -> flow.put(e, 0.0));
+        this.getEdges().forEach((e) -> flow.put(e, generator.apply(e)));
         return flow;
     }
 
-    public void maximizeFlow(Map<Edge<T>, Double> flow, Node<T> s, Node<T> t) {
-        Path<T> augmentingPath = shortestPath(s, t);
-        while (augmentingPath != null) {
 
+    //TODO: Let mapGraph and getAugmentingNetwork return nodeMapping, then map s and t
+    public void maximizeFlow(Map<Edge<T>, Double> flow, T s, T t) {
+        DirectedGraph<T, Edge<T>> augmentingNetwork = this.getAugmentingNetwork(flow);
+        while (true) {
+            Path<T> augmentingPath = augmentingNetwork.shortestPath(s, t);
+            if (augmentingPath == null) break;
+            augmentAlongPath()
         }
+    }
+    public void maximizeFlow(T s, T t) {
+        maximizeFlow(getZeroFlow(), s, t);
     }
 
 
