@@ -24,11 +24,16 @@ public class Node<T> {
     void addOutgoingEdge(Edge<T> edge) {
         outgoingEdges.add(edge);
     }
+    void removeOutgoingEdge(Edge<T> edge) {
+        outgoingEdges.remove(edge);
+    }
 
     void addIncomingEdge(Edge<T> edge) {
         incomingEdges.add(edge);
     }
-
+    void removeIncomingEdge(Edge<T> edge) {
+        incomingEdges.remove(edge);
+    }
     @Override
     public String toString() {
         return String.valueOf(value);

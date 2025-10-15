@@ -1,9 +1,36 @@
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+
 
 public abstract class Graph<T, E extends Edge<T>> {
+
+    class EdgeKey {
+        final Node<T> start;
+        final Node<T> end;
+
+        EdgeKey(Node<T> start, Node<T> end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Graph.EdgeKey)) return false;
+            Graph<T, E>.EdgeKey key = (Graph<T, E>.EdgeKey) o;
+            return Objects.equals(start, key.start) &&
+                    Objects.equals(end, key.end);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(start, end);
+        }
+    }
+
     protected final Map<T, Node<T>> nodes = new HashMap<>();
-    protected final List<E> edges = new ArrayList<>();
+    protected final Map<EdgeKey, E> edges = new HashMap<>();
     protected final EdgeFactory<T, E> edgeFactory;
 
     public Graph() {
@@ -27,7 +54,7 @@ public abstract class Graph<T, E extends Edge<T>> {
     }
 
     public List<E> getEdges() {
-        return Collections.unmodifiableList(edges);
+        return List.copyOf(edges.values());
     }
 
     public abstract void addExistingEdge(E edge);
@@ -41,8 +68,25 @@ public abstract class Graph<T, E extends Edge<T>> {
 
         return edge;
     }
+    public Edge<T> getEdge(Node<T> from, Node<T> to) {
+        return edges.get(new EdgeKey(from, to));
+    }
 
     public E addEdge(T from, T to) {
         return addEdge(from, to, null);
+    }
+
+    public abstract void removeEdge(E edge);
+
+
+    //Below methods rely on setting both Outgoing and Incoming edges for both start and end node
+    //for undirected graphs
+    public Set<Node<T>> neighbours(Set<Node<T>> S) {
+        return S.stream().flatMap(node -> {
+            return node.getOutgoingEdges().stream().map(Edge::getTo);
+        }).collect(Collectors.toSet());
+    }
+    public boolean hasEdge(Node<T> from, Node<T> to) {
+        return edges.containsKey(new EdgeKey(from, to));
     }
 }

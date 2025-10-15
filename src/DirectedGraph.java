@@ -13,12 +13,26 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
 
     @Override
     public void addExistingEdge(E edge) {
-        edges.add(edge);
-        edge.getFrom().addOutgoingEdge(edge);
-        edge.getTo().addIncomingEdge(edge);
+        edges.put(new EdgeKey(edge.getFrom(), edge.getTo()), edge);
+        edge.getFrom().addOutgoingEdge((E) edge);
+        edge.getTo().addIncomingEdge((E) edge);
+    }
+
+    @Override
+    public void removeEdge(E edge) {
+        EdgeKey key = new EdgeKey(edge.getFrom(), edge.getTo());
+
+        //System.out.println("Before remove: " + edges.get(key).toString() + " Removing: " + edge.toString());
+        if (!edges.remove(key, edge)) {
+            throw new RuntimeException("Removing edge failed, wrong mapping");
+        }
+        edge.getFrom().removeOutgoingEdge(edge);
+        edge.getTo().removeIncomingEdge(edge);
     }
 
     public Path<T> acyclicShortestPath(Node<T> startNode, Node<T> endNode) {
+        if (!nodes.containsKey(startNode.getValue()) || !nodes.containsKey(endNode.getValue())) throw new IllegalArgumentException("Node not part of Graph");
+
         if (startNode.equals(endNode)) return Path.empty();
 
         //if (endNode.getIncomingEdges().isEmpty()) return null;
@@ -40,8 +54,10 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
     }
 
     public Path<T> shortestPath(Node<T> startNode, Node<T> endNode) {
+        if (!nodes.containsKey(startNode.getValue()) || !nodes.containsKey(endNode.getValue())) throw new IllegalArgumentException("Node not part of Graph");
+
         LinkedList<Node<T>> queue = new LinkedList<>();
-        HashMap<Node<T>, Path<T>> shortestPath = new HashMap<>();
+        Map<Node<T>, Path<T>> shortestPath = new HashMap<>();
 
         shortestPath.put(startNode, new Path<>());
         queue.add(startNode);
@@ -60,70 +76,26 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
     public Path<T> shortestPath(T startNode, T endNode) {
         return shortestPath(getNode(startNode), getNode(endNode));
     }
+    public Set<Node<T>> getReachableNodes(Node<T> start) {
+        if (!nodes.containsKey(start.getValue())) throw new IllegalArgumentException("Node not part of Graph");
 
+        LinkedList<Node<T>> queue = new LinkedList<>();
+        Set<Node<T>> visited = new HashSet<>();
 
-    public DirectedGraph<T, Edge<T>> getAugmentingNetwork(Map<Edge<T>, Double> flow) {
-        DirectedGraph<T, Edge<T>> augmentingNetwork = GraphUtils.mapGraph(
-                this,
-                Function.identity(),
-                (edge, nodeMapping) -> {
-                    double newWeight = edge.getWeight() - flow.get(edge);
-                    return (newWeight > 0 ? new AugmentingEdge<>(nodeMapping.get(edge.getFrom()), nodeMapping.get(edge.getTo()), newWeight, edge, false) : null);
-                },
-                DirectedGraph::new);
+        visited.add(start);
+        queue.add(start);
 
-        Collection<Edge<T>> augNetNewEdges = new LinkedList<>();
-        for (Edge<T> edge : augmentingNetwork.getEdges()) {
-            AugmentingEdge<T> augEdge = ((AugmentingEdge<T>) edge);
-            Double edgeFlow = flow.get(augEdge.getOriginalEdge());
-            if (edgeFlow > 0) {
-                augNetNewEdges.add(new AugmentingEdge<>(
-                        edge.getTo(),
-                        edge.getFrom(),
-                        edgeFlow,
-                        augEdge.getOriginalEdge(),
-                        true));
+        while (!queue.isEmpty()) {
+            Node<T> currentNode = queue.pop();
+            for (Edge<T> outgoing : currentNode.getOutgoingEdges()) {
+                Node<T> neighbour = outgoing.getTo();
+                if (visited.add(neighbour)) {
+                    queue.add(neighbour);
+                }
+
             }
         }
-        for (Edge<T> edge : augNetNewEdges) {
-            augmentingNetwork.addExistingEdge(edge);
-        }
-        return augmentingNetwork;
+        return visited;
     }
-    private void augmentAlongPath(Map<Edge<T>, Double> flow, Path<T> augmentingPath) {
-        double gamma = augmentingPath.getEdges().stream().min(Comparator.comparingDouble(Edge::getWeight)).orElseThrow().getWeight();
-        augmentingPath.getEdges().forEach(e -> {
-            AugmentingEdge<T> augEdge = (AugmentingEdge<T>) e;
-            assert flow.containsKey(augEdge.getOriginalEdge()) : "Tried to augment non-existent Edge";
-            flow.computeIfPresent(augEdge.getOriginalEdge(), (k, v) -> {
-              return (augEdge.isBackFlow() ? v - gamma : v + gamma);
-            });
-        });
-    }
-
-    public Map<Edge<T>, Double> getZeroFlow() {
-        return generateFlow(e -> 0.0);
-    }
-    public Map<Edge<T>, Double> generateFlow(Function<Edge<T>, Double> generator) {
-        Map<Edge<T>, Double> flow = new HashMap<>();
-        this.getEdges().forEach((e) -> flow.put(e, generator.apply(e)));
-        return flow;
-    }
-
-
-    //TODO: Let mapGraph and getAugmentingNetwork return nodeMapping, then map s and t
-    public void maximizeFlow(Map<Edge<T>, Double> flow, T s, T t) {
-        DirectedGraph<T, Edge<T>> augmentingNetwork = this.getAugmentingNetwork(flow);
-        while (true) {
-            Path<T> augmentingPath = augmentingNetwork.shortestPath(s, t);
-            if (augmentingPath == null) break;
-            augmentAlongPath()
-        }
-    }
-    public void maximizeFlow(T s, T t) {
-        maximizeFlow(getZeroFlow(), s, t);
-    }
-
-
 
 }

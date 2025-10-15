@@ -1,7 +1,7 @@
 public class Edge<T> implements GraphvizComponent {
     private final Node<T> from;
     private final Node<T> to;
-    private final Double weight;
+    private Double weight;
 
     public Edge(Node<T> from, Node<T> to, Double weight) {
         this.from = from;
@@ -27,6 +27,9 @@ public class Edge<T> implements GraphvizComponent {
 
     public Double getWeight() {
         return weight;
+    }
+    public void setWeight(Double weight) {
+        this.weight = weight;
     }
 
     @Override

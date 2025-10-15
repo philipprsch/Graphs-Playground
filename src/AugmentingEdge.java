@@ -1,4 +1,4 @@
-public class AugmentingEdge<T> extends Edge<T> implements GraphvizComponent {
+public class AugmentingEdge<T> extends Edge<T> {
     private Edge<T> originalEdge;
 
     private Boolean isBackFlow;
@@ -7,6 +7,18 @@ public class AugmentingEdge<T> extends Edge<T> implements GraphvizComponent {
         super(from, to, weight);
         this.originalEdge = originalEdge;
         this.isBackFlow = isBackFlow;
+    }
+
+    public boolean update(double newFlow) {
+        if (!this.isBackFlow) {
+            double ce = originalEdge.getWeight();
+            if (newFlow >= ce) return false;
+            this.setWeight(ce - newFlow);
+        } else {
+            if (newFlow <= 0) return false;
+            this.setWeight(newFlow);
+        }
+        return true;
     }
 
     public Edge<T> getOriginalEdge() {
@@ -28,7 +40,7 @@ public class AugmentingEdge<T> extends Edge<T> implements GraphvizComponent {
     @Override
     public String toGraphviz() {
         return isWeighted()
-                ? "Cx: " + this.getWeight()
+                ? "C" + (isBackFlow ? "*" : "") + ": " + this.getWeight()
                 : "null";
     }
 
