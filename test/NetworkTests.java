@@ -79,27 +79,42 @@ public class NetworkTests {
     //edges that were used by augmentAlongPath calls to calculate gamma ("were reversed" in the Augmentationsnetzwerk)
     @Test
     void testMinCutTheory() {
-        Network<String, Edge<String>> network = GraphUtils.generateRandomNetwork(
-                20,          // number of nodes
-                0.25,        // probability of edge
-                42L,         // seed for reproducibility
-                0.8,         // bias (0.8 = 80% edges forward)
-                i -> (i == 0 ? "S" : (i == 19 ? "T" : "V" + i))
-        );
-        Helpers.copyToClipboard(GraphUtils.combineIntoClusteredGraph(List.of(GraphUtils.toGraphviz(network)), List.of("Random network")));
-        Set<Edge<String>> augmentingMinEdges = new HashSet<>();
-        Map<Edge<String>, Double> maxFLow = network.maximizeFlow(network.getZeroFlow(), augmentingMinEdges);
-
-
-        Network<String, AugmentingEdge<String>> augmentingNetwork = network.getAugmentingNetwork(maxFLow);
-        Set<Node<String>> reachableNodes = augmentingNetwork.getReachableNodes(augmentingNetwork.getS());
-
-        Set<Edge<String>> reachableEdges = reachableNodes.stream().flatMap(n -> {
-            return n.getOutgoingEdges().stream().map(e -> {
+        int totalNodes = 10; // number of nodes
+        Random random = new Random();
+        for (int d = 0; d < 10; d++) {
+            Network<String, Edge<String>> network = GraphUtils.generateRandomNetwork(
+                    totalNodes,          // number of nodes
+                    0.25,        // probability of edge
+                    random.nextLong(),         // seed for reproducibility
+                    0.8,         // bias (0.8 = 80% edges forward)
+                    (i, nodeCount) -> (i == 0 ? "S" : (i == nodeCount -1 ? "T" : "V" + i))
+            );
+            String randomNetworkGraphviz = GraphUtils.combineIntoClusteredGraph(List.of(GraphUtils.toGraphviz(network)), List.of("Random network"));
+            Set<Edge<String>> augmentingMinEdges = new HashSet<>();
+            //augmentingMinEdges should store the FIRST (original) min-weight edges of each used augmenting path
+            Map<Edge<String>, Double> maxFLow = network.maximizeFlow(network.getZeroFlow(), augmentingMinEdges);
+            Set<Edge<String>> augMinEdgesOriginals = augmentingMinEdges.stream().map(e -> {
                 return ((AugmentingEdge<String>) e).getOriginalEdge();
-            });
-        }).collect(Collectors.toSet());
-        assertEquals(reachableEdges, augmentingMinEdges);
+            }).collect(Collectors.toSet());
+
+            //network.getAugmentingNetwork(maxFLow) SHOULD return the same aug. Network as in the last iteration of maximizeFlow
+            Network<String, AugmentingEdge<String>> augmentingNetwork = network.getAugmentingNetwork(maxFLow);
+            Set<Node<String>> reachableNodes = augmentingNetwork.getReachableNodes(augmentingNetwork.getS()).stream().map(n -> {
+                return network.getNode(n.getValue());
+            }).collect(Collectors.toSet());
+
+            Set<Edge<String>> reachableEdges = reachableNodes.stream().flatMap(n -> {
+                //Use the outgoing edges of the corresponding node of n in network (NOT aug. network)
+                return n.getOutgoingEdges().stream().filter(e -> {
+                    return  !reachableNodes.contains(e.getTo());
+                });
+            }).collect(Collectors.toSet());
+            if (augMinEdgesOriginals.containsAll(reachableEdges)) System.out.println("Reachable edges subset of augMinEdgesOriginals");
+            if (reachableEdges.containsAll(augMinEdgesOriginals)) System.out.println("augMinEdgesOriginals subset of reachable edges");
+            System.out.println("---------------------------------------------");
+            assertEquals(augMinEdgesOriginals, reachableEdges);
+            //assertTrue(reachableEdges.containsAll(augMinEdgesOriginals) && augMinEdgesOriginals.containsAll(reachableEdges));
+        }
     }
 
 }

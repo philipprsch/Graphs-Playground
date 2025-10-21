@@ -1,5 +1,6 @@
 import java.util.*;
 import java.util.function.*;
+import java.util.stream.Collectors;
 
 public class GraphUtils {
 
@@ -71,15 +72,65 @@ public class GraphUtils {
 
         return new GraphMapping<>(nodeMapping, edgeMapping, newGraph);
     }
+
+
+    public static class NetworkNodeComparator<T> implements Comparator<Node<T>> {
+
+        @Override
+        public int compare(Node<T> aN, Node<T> bN) {
+            String a = (String) aN.getValue();
+            String b = (String) bN.getValue();
+            // Handle nulls safely (optional)
+            if (a == null && b == null) return 0;
+            if (a == null) return 1;
+            if (b == null) return -1;
+
+            // "S" should always come first
+            if (a.equals("S") && !b.equals("S")) return -1;
+            if (b.equals("S") && !a.equals("S")) return 1;
+
+            // "T" should always come last
+            if (a.equals("T") && !b.equals("T")) return 1;
+            if (b.equals("T") && !a.equals("T")) return -1;
+
+            // Handle "V" prefixed strings with numeric suffix
+            if (a.startsWith("V") && b.startsWith("V")) {
+                try {
+                    int numA = Integer.parseInt(a.substring(1));
+                    int numB = Integer.parseInt(b.substring(1));
+                    return Integer.compare(numA, numB);
+                } catch (NumberFormatException e) {
+                    // Fall back to normal lexicographic comparison
+                    return a.compareTo(b);
+                }
+            }
+
+            // If one is "V..." and the other is not, put V’s before non-V’s (optional)
+            if (a.startsWith("V") && !b.startsWith("V")) return -1;
+            if (b.startsWith("V") && !a.startsWith("V")) return 1;
+
+            // Default lexicographic comparison
+            return a.compareTo(b);
+        }
+    }
     public static <T, E extends Edge<T> & GraphvizComponent> String toGraphviz(Graph<T, E> graph) {
-        return toGraphviz(graph, (e) -> "");
+        return toGraphviz(graph, (e) -> "", null);
     }
 
-    public static <T, E extends Edge<T> & GraphvizComponent> String toGraphviz(Graph<T, E> graph, Function <E, String> extraEdgeInformer) {
+    public static <T, E extends Edge<T> & GraphvizComponent> String toGraphviz(Graph<T, E> graph, Function<E, String> extraEdgeInfo) {
+        return toGraphviz(graph, extraEdgeInfo, null);
+    }
+    public static <T, E extends Edge<T> & GraphvizComponent> String toGraphviz(Graph<T, E> graph, Comparator<Node<T>> comparator) {
+        return toGraphviz(graph,  (e) -> "", comparator);
+    }
+
+    public static <T, E extends Edge<T> & GraphvizComponent> String toGraphviz(Graph<T, E> graph, Function <E, String> extraEdgeInformer, Comparator<Node<T>> comparator) {
         boolean directed = graph instanceof DirectedGraph;
 
         StringBuilder sb = new StringBuilder();
         sb.append(directed ? "digraph" : "graph").append(" G {\n");
+
+
 
 //        sb.append("  /* Layout + style */\n" +
 //                "  rankdir=LR;        // lay out left-to-right\n" +
@@ -92,10 +143,41 @@ public class GraphUtils {
 //                "  node [shape=circle, style=filled, fillcolor=lightgray, fontname=\"Helvetica\"];\n" +
 //                "  edge [arrowhead=normal, fontsize=10, fontname=\"Helvetica\"];");
 
+
         String connector = directed ? "->" : "--";
 
         // Write nodes (optional if you want them even without edges)
-        for (Node<T> node : graph.getNodes()) {
+        List<Node<T>> nodeCollection = (comparator != null ?
+                graph.getNodes().stream().sorted(comparator).toList() :
+                graph.getNodes().stream().toList());
+
+//        sb.append("{ rank=s; ");
+//
+//        // Join all nodes with " -> "
+//        int i = 0;
+//        for (Node<T> node : nodeCollection) {
+//            sb.append('"').append(node.getValue().toString()).append('"');
+//            if (i < nodeCollection.size() - 1) {
+//                sb.append(" -> ");
+//            }
+//            i++;
+//        }
+//
+//        // Append style attributes
+//        sb.append(" [style=invis, weight=10]; }\n");
+
+        for (int i = 0; i < nodeCollection.size() - 1; i++) {
+            String from = nodeCollection.get(i).getValue().toString();
+            String to = nodeCollection.get(i + 1).getValue().toString();
+            sb.append('"').append(from).append('"')
+                    .append(" -> ")
+                    .append('"').append(to).append('"')
+                    .append(" [weight=10, style=invis];\n");
+        }
+
+        //Declare nodes:
+
+        for (Node<T> node : nodeCollection) {
             sb.append("  \"")
                     .append(node.getValue().toString())
                     .append("\";\n");
@@ -147,10 +229,21 @@ public class GraphUtils {
 
         StringBuilder sb = new StringBuilder();
         sb.append("digraph CombinedGraph {\n");
-        sb.append("  rankdir=LR;\n");
-        sb.append("  compound=true;\n");
-        sb.append("  splines=line;\n");
-        sb.append("  node [shape=circle, style=filled, fillcolor=lightgray];\n\n");
+//        sb.append("  rankdir=LR;\n");
+//        sb.append("  ranksep=1.0;\n");
+//        sb.append("  compound=true;\n");
+//        sb.append("  splines=true;\n");
+//        sb.append("  overlap=false;\n");
+
+        sb.append("layout=dot;\n" +
+                "  rankdir=LR;\n" +
+                "  splines=true;\n" +
+                "  overlap=false;\n" +
+                "  concentrate=false;\n" +
+                "  ranksep=1.2;\n" +
+                "  nodesep=0.6;\n");
+
+        sb.append("  node [shape=circle, style=filled, fillcolor=lightgray, fontname=\"Helvetica\"];\n");
 
         for (int i = 0; i < subgraphs.size(); i++) {
             String label = labels.get(i);
@@ -161,11 +254,24 @@ public class GraphUtils {
             inner = inner.replaceAll("\"([A-Za-z0-9_]+)\"", "\"" + i + "_$1\""); //Prefix nodes
 
             sb.append("  subgraph cluster_").append(i).append(" {\n");
-            sb.append("    label=\"").append(label).append("\";\n");
-            sb.append("    style=rounded;\n");
-            sb.append("    color=gray;\n");
-            sb.append("    fontname=\"Helvetica\";\n");
-            sb.append("    fontsize=12;\n\n");
+//            sb.append("    rankdir=LR;\n");
+//            sb.append("    label=\"").append(label).append("\";\n");
+//            sb.append("    style=rounded;\n");
+//            sb.append("    color=gray;\n");
+//            sb.append("    fontname=\"Helvetica\";\n");
+//            sb.append("    fontsize=12;\n");
+//            sb.append("    ordering=\"in\";\n\n");
+
+            sb.append("label=\""+label+"\";\n" +
+                    "    style=rounded;\n" +
+                    "    color=gray;\n" +
+                    "\n" +
+                    "    // Fix source on the far left\n" +
+                    "    { rank=min; \""+i+"_S\"; }\n" + //Start is alway node with string S
+                    "\n" +
+                    "    // Fix sink on the far right\n" +
+                    "    { rank=max; \""+i+"_T\"; }"); //Sink is always node with String T
+
             sb.append(indent(inner.trim(), "    ")).append("\n");
             sb.append("  }\n\n");
         }
@@ -183,21 +289,21 @@ public class GraphUtils {
             double edgeProbability,
             long seed,
             double forwardBias,
-            java.util.function.Function<Integer, T> nodeValueFactory
+            BiFunction<Integer, Integer, T> nodeValueFactory
     ) {
         Random random = new Random(seed);
         Network<T, Edge<T>> graph = new Network<>();
 
         // --- Create nodes ---
-        Node<T> source = graph.addNode(nodeValueFactory.apply(0)); // "S"
-        Node<T> sink = graph.addNode(nodeValueFactory.apply(nodeCount - 1)); // "T"
+        Node<T> source = graph.addNode(nodeValueFactory.apply(0, nodeCount)); // "S"
+        Node<T> sink = graph.addNode(nodeValueFactory.apply(nodeCount - 1, nodeCount)); // "T"
         graph.setS(source);
         graph.setT(sink);
 
         List<Node<T>> nodes = new ArrayList<>();
         nodes.add(source);
         for (int i = 1; i < nodeCount - 1; i++) {
-            nodes.add(graph.addNode(nodeValueFactory.apply(i)));
+            nodes.add(graph.addNode(nodeValueFactory.apply(i, nodeCount)));
         }
         nodes.add(sink);
 

@@ -132,7 +132,7 @@ public class Network<T, E extends Edge<T>> extends DirectedGraph<T, E> {
         return maximizeFlow(getZeroFlow());
     }
 
-    public Map<Edge<T>, Double> maximizeFlow(Map<Edge<T>, Double> flow, Set<Edge<T>> minCutEdges) {
+    public Map<Edge<T>, Double> maximizeFlow(Map<Edge<T>, Double> flow, Set<Edge<T>> minAugEdges) {
 
         if (this.s == null || this.t == null) throw new RuntimeException("Source / Drain undefined");
 
@@ -145,15 +145,15 @@ public class Network<T, E extends Edge<T>> extends DirectedGraph<T, E> {
 
             Path<T> augmentingPath = augmentingNetwork.shortestPath(augmentingNetwork.getS(), augmentingNetwork.getT());
 
-            graphs.add(GraphUtils.toGraphviz(this, (e) -> "F: " + flow.get(e).toString()));
+            graphs.add(GraphUtils.toGraphviz(this, (e) -> "F: " + flow.get(e).toString(), new GraphUtils.NetworkNodeComparator<T>()));
             graphLabels.add("Net " + iterations);
-            graphs.add(GraphUtils.toGraphviz(augmentingNetwork));
+            graphs.add(GraphUtils.toGraphviz(augmentingNetwork, new GraphUtils.NetworkNodeComparator<T>()));
             graphLabels.add("AugNet " + iterations + "P: " + (augmentingPath != null ? augmentingPath : "None. Done."));
 
             if (augmentingPath == null) break;
             //Helpers.copyToClipboard(GraphUtils.combineIntoClusteredGraph(graphs, graphLabels));
             Edge<T> minEdge = augmentingNetwork.augmentAlongPath(flow, augmentingPath);
-            minCutEdges.add(minEdge);
+            minAugEdges.add(minEdge);
 
             iterations++;
         }
@@ -175,9 +175,9 @@ public class Network<T, E extends Edge<T>> extends DirectedGraph<T, E> {
         while (true) {
             Path<T> augmentingPath = augmentingNetwork.shortestPath(augmentingNetwork.getS(), augmentingNetwork.getT());
 
-            graphs.add(GraphUtils.toGraphviz(this, (e) -> "F: " + flow.get(e).toString()));
+            graphs.add(GraphUtils.toGraphviz(this, (e) -> "F: " + flow.get(e).toString(), new GraphUtils.NetworkNodeComparator<T>()));
             graphLabels.add("Net " + iterations);
-            graphs.add(GraphUtils.toGraphviz(augmentingNetwork));
+            graphs.add(GraphUtils.toGraphviz(augmentingNetwork, new GraphUtils.NetworkNodeComparator<T>()));
             graphLabels.add("AugNet " + iterations + "P: " + (augmentingPath != null ? augmentingPath : "None. Done."));
 
             if (augmentingPath == null) {
