@@ -1,4 +1,5 @@
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,6 +44,10 @@ public class Path<T> {
             sum += edge.getWeight() != null ? edge.getWeight() : 0.0;
         }
         return sum;
+    }
+    public double getMinWeight() {
+        Edge<T> minEdge = this.getEdges().stream().min(Comparator.comparingDouble(Edge::getWeight)).orElseThrow();
+        return minEdge.getWeight();
     }
 
     @Override

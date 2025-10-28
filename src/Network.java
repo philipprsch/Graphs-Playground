@@ -1,18 +1,25 @@
 import java.util.*;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class Network<T, E extends Edge<T>> extends DirectedGraph<T, E> {
 
-    private Node<T> s;
-    private Node<T> t;
+    protected Node<T> s;
+    protected Node<T> t;
+
+    private static final Logger LOG = Logger.getLogger(Network.class.getName());
 
     public Network() {
         super();
+        LOG.setLevel(Level.INFO);
     }
     public Network(T s, T t) {
         super();
         this.s = addNode(s);
         this.t = addNode(t);
+        LOG.setLevel(Level.INFO);
     }
 
     public Node<T> getS() {
@@ -37,80 +44,7 @@ public class Network<T, E extends Edge<T>> extends DirectedGraph<T, E> {
     public void setT(T t) {
         this.t = addNode(t);
     }
-    public Network<T, AugmentingEdge<T>> getAugmentingNetwork(Map<Edge<T>, Double> flow) {
-        GraphUtils.GraphMapping<T, E, T, AugmentingEdge<T>, Network<T, AugmentingEdge<T>>> graphMapping = GraphUtils.mapGraph(
-                this,
-                Function.identity(),
-                (edge, nodeMapping) -> {
-                    double newWeight = edge.getWeight() - flow.get(edge);
-                    return (newWeight > 0 ? new AugmentingEdge<T>(nodeMapping.get(edge.getFrom()), nodeMapping.get(edge.getTo()), newWeight, edge, false) : null);
-                },
-                Network<T, AugmentingEdge<T>>::new,
-                (newGraph, nodeMapping, edgeMapping) -> { //Map source and drain points
-                    newGraph.setS(nodeMapping.get(this.s));
-                    newGraph.setT(nodeMapping.get(this.t));
-                });
 
-        Network<T, AugmentingEdge<T>> augmentingNetwork = graphMapping.getNewGraph();
-
-        Collection<AugmentingEdge<T>> augNetNewEdges = new LinkedList<>();
-        for (AugmentingEdge<T> edge : augmentingNetwork.getEdges()) {
-            Double edgeFlow = flow.get(edge.getOriginalEdge());
-            if (edgeFlow > 0) {
-                augNetNewEdges.add(new AugmentingEdge<>(
-                        edge.getTo(),
-                        edge.getFrom(),
-                        edgeFlow,
-                        edge.getOriginalEdge(),
-                        true));
-            }
-        }
-        for (AugmentingEdge<T> edge : augNetNewEdges) {
-            augmentingNetwork.addExistingEdge(edge);
-        }
-        return augmentingNetwork;
-    }
-    private Edge<T> augmentAlongPath(Map<Edge<T>, Double> flow, Path<T> augmentingPath) {
-        Edge<T> minEdge = augmentingPath.getEdges().stream().min(Comparator.comparingDouble(Edge::getWeight)).orElseThrow();
-        double gamma = minEdge.getWeight();
-        System.out.println("Augmenting along Path: " + augmentingPath.toString() + " with g=" + gamma);
-        augmentingPath.getEdges().forEach(e -> {
-            AugmentingEdge<T> augEdge = (AugmentingEdge<T>) e;
-            assert flow.containsKey(augEdge.getOriginalEdge()) : "Tried to augment non-flow-reg. Edge: " + augEdge.getOriginalEdge().toString() + " of AugEdge: " + augEdge.toString();
-            Double newFlow = flow.compute(augEdge.getOriginalEdge(), (k, v) -> {
-                return (augEdge.isBackFlow() ? v - gamma : v + gamma);
-            });
-            //Update the Augmentationnetwork according to the new flow assigned to augEdge.getOriginalEdge()
-            if (!augEdge.update(newFlow)) {
-                System.out.println("Must remove path edge: " + augEdge);
-                this.removeEdge((E) augEdge);
-            }
-            AugmentingEdge<T> counterEdge = (AugmentingEdge<T>) getEdge(augEdge.getTo(), augEdge.getFrom());
-            if (counterEdge != null) {
-                System.out.println("Counter edge exists and is: " + counterEdge.toString());
-                assert counterEdge.isBackFlow() != augEdge.isBackFlow() : "Counter edge is not backflow";
-                //If counter Edge already is in Graph just update it and delete if no longer needed.
-                if (!counterEdge.update(newFlow)) {
-                    System.out.println("Must remove counter edge");
-                    this.removeEdge((E) counterEdge);
-                } else {
-                    System.out.println("Updated counter edge: " + counterEdge.toString());
-                }
-            } else {
-                System.out.println("Counter edge does not exist");
-                //Experimentally create counter Edge and only add it to Graph if required by flow.
-                AugmentingEdge<T> newCounterEdge = new AugmentingEdge<>(augEdge.getTo(), augEdge.getFrom(), 0.0, augEdge.getOriginalEdge(), !augEdge.isBackFlow());
-                if (newCounterEdge.update(newFlow)) {
-                    System.out.println("Initialized counter edge: " + newCounterEdge.toString());
-                    this.addExistingEdge((E) newCounterEdge);
-                } else {
-                    System.out.println("Did not add counter Edge");
-                }
-            }
-
-        });
-        return minEdge;
-    }
 
     public Map<Edge<T>, Double> getZeroFlow() {
         return generateFlow(e -> 0.0);
@@ -121,9 +55,28 @@ public class Network<T, E extends Edge<T>> extends DirectedGraph<T, E> {
         return flow;
     }
     public double flowValue(Map<Edge<T>, Double> flow) {
-        return this.s.getOutgoingEdges().stream().map(flow::get).reduce(Double::sum).orElseThrow();
+        return this.s.getOutgoingEdges().stream().map(flow::get).reduce(Double::sum).orElse(0.0); //0.0 flow for no outgoing edges
     }
-
+    //Below variables may be directly used by functions, taking a maximal flow or max. aug. netw. as input
+    //without recalling maximizeFlow() on this network
+    private Map<Edge<T>, Double> lastMaxFlow;
+    private AugmentingNetwork<T> lastMaxAugmentingNetwork;
+    public Set<Node<T>> getMinCutSNodesOfMaxFlow(Map<Edge<T>, Double> flow) {
+        AugmentingNetwork<T> augmentingNetwork = AugmentingNetwork.of(this, flow);
+        return augmentingNetwork.getReachableNodes(augmentingNetwork.getS()).stream().map(n -> {
+            return this.getNode(n.getValue());
+        }).collect(Collectors.toSet());
+    }
+    public Set<Node<T>> getMinCutSNodesOfMaxAug(AugmentingNetwork<T> augmentingNetwork) {
+        return augmentingNetwork.getReachableNodes(augmentingNetwork.getS()).stream().map(n -> {
+            return this.getNode(n.getValue());
+        }).collect(Collectors.toSet());
+    }
+    public boolean isFlowMaximal(Map<Edge<T>, Double> flow) {
+        AugmentingNetwork<T> augmentingNetwork = AugmentingNetwork.of(this, flow);
+        Path<T> augmentingPath = augmentingNetwork.shortestPath(augmentingNetwork.getS(), augmentingNetwork.getT());
+        return augmentingPath == null;
+    }
 
     public Map<Edge<T>, Double> maximizeFlow(Map<Edge<T>, Double> flow) {
         return maximizeFlow(flow, new HashSet<>());
@@ -132,11 +85,12 @@ public class Network<T, E extends Edge<T>> extends DirectedGraph<T, E> {
         return maximizeFlow(getZeroFlow());
     }
 
+
     public Map<Edge<T>, Double> maximizeFlow(Map<Edge<T>, Double> flow, Set<Edge<T>> minAugEdges) {
 
         if (this.s == null || this.t == null) throw new RuntimeException("Source / Drain undefined");
 
-        Network<T, AugmentingEdge<T>> augmentingNetwork = this.getAugmentingNetwork(flow);
+        AugmentingNetwork<T> augmentingNetwork = AugmentingNetwork.of(this, flow);
         List<String> graphs = new LinkedList<>();
         List<String> graphLabels = new LinkedList<>();
         int iterations = 0;
@@ -152,11 +106,13 @@ public class Network<T, E extends Edge<T>> extends DirectedGraph<T, E> {
 
             if (augmentingPath == null) break;
             //Helpers.copyToClipboard(GraphUtils.combineIntoClusteredGraph(graphs, graphLabels));
-            Edge<T> minEdge = augmentingNetwork.augmentAlongPath(flow, augmentingPath);
-            minAugEdges.add(minEdge);
+            augmentingNetwork.augmentAlongPath(flow, augmentingPath);
 
             iterations++;
         }
+        lastMaxAugmentingNetwork = augmentingNetwork;
+        lastMaxFlow = flow;
+
         Helpers.copyToClipboard(GraphUtils.combineIntoClusteredGraph(graphs, graphLabels));
 
         return flow;
@@ -164,32 +120,73 @@ public class Network<T, E extends Edge<T>> extends DirectedGraph<T, E> {
     public Map<Edge<T>, Double> getMinimalCapacityIncreasement(double K, Map<Edge<T>, Double> originalFlow) {
         if (this.s == null || this.t == null) throw new RuntimeException("Source / Drain undefined");
 
-        Map<Edge<T>, Double> inc = getZeroFlow();
-        Map<Edge<T>, Double> flow = new HashMap<>(originalFlow);
+        //Create a copy of the current network (including edges), such that this edges capacities are not changed (increased)
+        GraphUtils.GraphMapping<T, E, T, Edge<T>, Network<T, Edge<T>>> incrCapNetMapping = GraphUtils.mapGraph(
+                this,
+                Function.identity(),
+                (edge, nodeMapping) -> {
+                    return new Edge<T>(nodeMapping.get(edge.getFrom()), nodeMapping.get(edge.getTo()), edge.getWeight());
+                },
+                Network<T, Edge<T>>::new,
+                (newGraph, nodeMapping, edgeMapping) -> {
+                    newGraph.setS(nodeMapping.get(this.getS()));
+                    newGraph.setT(nodeMapping.get(this.getT()));
+                }
+        );
+        Network<T, Edge<T>> incrCapNet = incrCapNetMapping.getNewGraph();
 
-        Network<T, AugmentingEdge<T>> augmentingNetwork = this.getAugmentingNetwork(originalFlow);
+        Map<Edge<T>, Double> inc = this.getZeroFlow();
+
+        //Create flow variable for incrCapNet Graph (copy flow from originalFlow [defined for this])
+        Map<Edge<T>, Double> flow = new HashMap<>(Helpers.joinOnKey(originalFlow, incrCapNetMapping.getEdgeMapping()));
+        Set<Edge<T>> blockingEdges = new HashSet<>(); //Set storing edges that (were) limiting flow of value K
+
+        //Debugging stuff
         List<String> graphs = new LinkedList<>();
         List<String> graphLabels = new LinkedList<>();
         int iterations = 0;
 
+        AugmentingNetwork<T> augmentingNetwork = AugmentingNetwork.of(incrCapNet, flow);
         while (true) {
+            double currentFlowValue = incrCapNet.flowValue(flow);
+            if (currentFlowValue >= K) break;
+
             Path<T> augmentingPath = augmentingNetwork.shortestPath(augmentingNetwork.getS(), augmentingNetwork.getT());
 
-            graphs.add(GraphUtils.toGraphviz(this, (e) -> "F: " + flow.get(e).toString(), new GraphUtils.NetworkNodeComparator<T>()));
-            graphLabels.add("Net " + iterations);
+            graphs.add(GraphUtils.toGraphviz(incrCapNet, (e) -> "F: " + flow.get(e).toString(), new GraphUtils.NetworkNodeComparator<T>()));
+            //Graph label is determined by below augmentingPath==null IF statement
             graphs.add(GraphUtils.toGraphviz(augmentingNetwork, new GraphUtils.NetworkNodeComparator<T>()));
             graphLabels.add("AugNet " + iterations + "P: " + (augmentingPath != null ? augmentingPath : "None. Done."));
 
             if (augmentingPath == null) {
                 //Flow is maximal -> find the respective minimal cut -> Set cut-edges weights to Infinity
-                break; //Remove this later
+                Set<Node<T>> minCutNodes = incrCapNet.getMinCutSNodesOfMaxAug(augmentingNetwork);
+                Set<Edge<T>> minCutEdges = Graph.neighbourEdges(minCutNodes);
+                graphLabels.add("Net " + iterations + "Infinitized: " + minCutEdges.stream().map(e -> e.toString() + ", ").reduce(String::concat).orElse("No min-cut edges."));
+                if (minCutEdges.isEmpty()) return null; //Return null (NO SOLUTION) if there is no (was never a) path from S to T in original network
+                minCutEdges.forEach(e -> {
+                    blockingEdges.add(e);
+                    //if (e )
+                    e.setWeight(Double.POSITIVE_INFINITY);
+                });
+                //Update augmenting network after having changed network edges capacities
+                augmentingNetwork = AugmentingNetwork.of(incrCapNet, flow);
+            } else {
+                graphLabels.add("Net " + iterations);
+                augmentingNetwork.augmentAlongPath(flow, augmentingPath, Math.min(augmentingPath.getMinWeight(), K - currentFlowValue));
             }
 
-            augmentingNetwork.augmentAlongPath(flow, augmentingPath);
-
             iterations++;
-
         }
+        //The desired flow K is achieved -> set "infinitized" edges increasement according to their original (this) weights
+        //and current flow (of value K)
+        Map<E, Edge<T>> incrCapNetNodeMap = incrCapNetMapping.getEdgeMapping();
+        Map<Edge<T>, E> thisNodeMap = Helpers.reverseMap(incrCapNetNodeMap);
+
+        blockingEdges.forEach(be -> {
+            E originalBE = thisNodeMap.get(be);
+            inc.put(originalBE, flow.get(be) - originalBE.getWeight());
+        });
 
         Helpers.copyToClipboard(GraphUtils.combineIntoClusteredGraph(graphs, graphLabels));
 

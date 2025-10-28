@@ -81,11 +81,19 @@ public abstract class Graph<T, E extends Edge<T>> {
 
     //Below methods rely on setting both Outgoing and Incoming edges for both start and end node
     //for undirected graphs
-    public Set<Node<T>> neighbours(Set<Node<T>> S) {
+    public static <T> Set<Node<T>> neighbours(Set<Node<T>> S) {
         return S.stream().flatMap(node -> {
             return node.getOutgoingEdges().stream().map(Edge::getTo);
         }).collect(Collectors.toSet());
     }
+    public static <T> Set<Edge<T>> neighbourEdges(Set<Node<T>> S) {
+        return S.stream().flatMap(n -> {
+            return n.getOutgoingEdges().stream().filter(e -> {
+                return  !S.contains(e.getTo());
+            });
+        }).collect(Collectors.toSet());
+    }
+
     public boolean hasEdge(Node<T> from, Node<T> to) {
         return edges.containsKey(new EdgeKey(from, to));
     }

@@ -1,3 +1,5 @@
+import java.lang.reflect.Constructor;
+
 public class Edge<T> implements GraphvizComponent {
     private final Node<T> from;
     private final Node<T> to;

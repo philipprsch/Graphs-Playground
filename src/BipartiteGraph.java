@@ -52,7 +52,7 @@ public class BipartiteGraph<T, E extends Edge<T>> {
 
     public boolean existsLeftCoveringMatching() {
         return Helpers.powerSet(new LinkedList<>(leftPartition)).stream().noneMatch(M -> {
-            return (graph.neighbours(new HashSet<>(M)).size() < M.size());
+            return (Graph.neighbours(new HashSet<>(M)).size() < M.size());
         });
     }
 

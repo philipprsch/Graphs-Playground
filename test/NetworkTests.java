@@ -39,7 +39,7 @@ public class NetworkTests {
 
         Map<Edge<String>, Double> flow = graph.generateFlow(e -> (double) (random.nextInt(e.getWeight().intValue() + 1)));
 
-        Graph<String, AugmentingEdge<String>> augmentingNetwork = graph.getAugmentingNetwork(flow);
+        AugmentingNetwork<String> augmentingNetwork = AugmentingNetwork.of(graph, flow);
 
         String s1 = GraphUtils.toGraphviz(graph, (e) -> "F: " + flow.get(e).toString());
         String s2 = GraphUtils.toGraphviz(augmentingNetwork, (e) -> "");
@@ -63,7 +63,7 @@ public class NetworkTests {
 
         Map<Edge<String>, Double> flow = graph.maximizeFlow();
 
-        Graph<String, AugmentingEdge<String>> augmentingNetwork = graph.getAugmentingNetwork(flow);
+        AugmentingNetwork<String> augmentingNetwork = AugmentingNetwork.of(graph, flow);
 
         String s1 = GraphUtils.toGraphviz(graph, (e) -> "F: " + flow.get(e).toString());
         String s2 = GraphUtils.toGraphviz(augmentingNetwork, (e) -> "");
@@ -77,15 +77,17 @@ public class NetworkTests {
     //Test the theory, that after termination of Ford Fulkerson (-> we have maximized flow)
     //the set of edges outgoing form the nodes reachable from s, is the same as the set of
     //edges that were used by augmentAlongPath calls to calculate gamma ("were reversed" in the Augmentationsnetzwerk)
+
+    //Conclusion: Theory is false, even "worse" Augmenting paths used are not sufficient to find min-cut-edges
     @Test
     void testMinCutTheory() {
         int totalNodes = 10; // number of nodes
-        Random random = new Random();
-        for (int d = 0; d < 10; d++) {
+        Random random = new Random(35903982591067L);
+        for (int d = 0; d < 100; d++) {
             Network<String, Edge<String>> network = GraphUtils.generateRandomNetwork(
                     totalNodes,          // number of nodes
                     0.25,        // probability of edge
-                    random.nextLong(),         // seed for reproducibility
+                    random,         // seed for reproducibility
                     0.8,         // bias (0.8 = 80% edges forward)
                     (i, nodeCount) -> (i == 0 ? "S" : (i == nodeCount -1 ? "T" : "V" + i))
             );
@@ -98,7 +100,7 @@ public class NetworkTests {
             }).collect(Collectors.toSet());
 
             //network.getAugmentingNetwork(maxFLow) SHOULD return the same aug. Network as in the last iteration of maximizeFlow
-            Network<String, AugmentingEdge<String>> augmentingNetwork = network.getAugmentingNetwork(maxFLow);
+            AugmentingNetwork<String> augmentingNetwork = AugmentingNetwork.of(graph, maxFLow);
             Set<Node<String>> reachableNodes = augmentingNetwork.getReachableNodes(augmentingNetwork.getS()).stream().map(n -> {
                 return network.getNode(n.getValue());
             }).collect(Collectors.toSet());
@@ -112,7 +114,7 @@ public class NetworkTests {
             if (augMinEdgesOriginals.containsAll(reachableEdges)) System.out.println("Reachable edges subset of augMinEdgesOriginals");
             if (reachableEdges.containsAll(augMinEdgesOriginals)) System.out.println("augMinEdgesOriginals subset of reachable edges");
             System.out.println("---------------------------------------------");
-            assertEquals(augMinEdgesOriginals, reachableEdges);
+            //assertEquals(augMinEdgesOriginals, reachableEdges);
             //assertTrue(reachableEdges.containsAll(augMinEdgesOriginals) && augMinEdgesOriginals.containsAll(reachableEdges));
         }
     }

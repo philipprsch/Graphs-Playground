@@ -78,6 +78,9 @@ public class GraphUtils {
 
         @Override
         public int compare(Node<T> aN, Node<T> bN) {
+            if (!(aN.getValue() instanceof String) || !(bN.getValue() instanceof String)) {
+                return 0;
+            }
             String a = (String) aN.getValue();
             String b = (String) bN.getValue();
             // Handle nulls safely (optional)
@@ -287,11 +290,11 @@ public class GraphUtils {
     public static <T> Network<T, Edge<T>> generateRandomNetwork(
             int nodeCount,
             double edgeProbability,
-            long seed,
+            Random random,
             double forwardBias,
             BiFunction<Integer, Integer, T> nodeValueFactory
     ) {
-        Random random = new Random(seed);
+        //Random random = new Random(seed);
         Network<T, Edge<T>> graph = new Network<>();
 
         // --- Create nodes ---
