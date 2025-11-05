@@ -2,6 +2,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Path<T> {
     private final LinkedList<Edge<T>> edges = new LinkedList<>();
@@ -16,6 +17,12 @@ public class Path<T> {
     public static <U> Path<U> empty() {
         return new Path<>();
     }
+    public static <T> Path<T> of(Stream<Edge<T>> edges) {
+        Path<T> newPath = new Path<>();
+        edges.forEach(newPath::addEdge);
+        return newPath;
+    }
+
     public Path<T> withEdge(Edge<T> edge) {
         Path<T> newPath = new Path<>(this);
         newPath.addEdge(edge);

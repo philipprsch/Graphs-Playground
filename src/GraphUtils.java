@@ -342,4 +342,45 @@ public class GraphUtils {
         return graph;
     }
 
+    public static <T> DirectedGraph<T, Edge<T>> generateRandomDirectedGraph(
+            int nodeCount,
+            double edgeProbability,
+            Random random,
+            BiFunction<Integer, Integer, T> nodeValueFactory,
+            BiFunction<Random, Edge<T>, Double> weightFactory,
+            boolean selfLoops,
+            boolean biDirection
+    ) {
+        DirectedGraph<T, Edge<T>> graph = new DirectedGraph<>();
+
+        List<Node<T>> nodes = new ArrayList<>();
+        for (int i = 0; i < nodeCount; i++) {
+            nodes.add(graph.addNode(nodeValueFactory.apply(i, nodeCount)));
+        }
+
+        for (int i = 0; i < nodeCount; i++) {
+            for (int j = 0; j < nodeCount; j++) {
+                if (!selfLoops && i == j) continue; // no self-loops
+
+                Node<T> from = nodes.get(i);
+                Node<T> to = nodes.get(j);
+
+                // Enforce unique edges
+                if (selfLoops && from == to) continue; // from = to => selfLoops (see above if)
+                if (!selfLoops && graph.hasEdge(from, to)) continue;
+                if (!selfLoops && !biDirection && graph.hasEdge(to, from)) continue;
+
+                // Basic probability check
+                if (random.nextDouble() < edgeProbability) {
+                    Edge<T> newEdge = new Edge<T>(from, to);
+                    double weight = weightFactory.apply(random, newEdge);
+                    newEdge.setWeight(weight);
+                    graph.addExistingEdge(newEdge);
+                }
+            }
+        }
+
+        return graph;
+    }
+
 }

@@ -4,18 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="89e762b6-2b29-4ba8-90d3-4acfde115449" name="Changes" comment="last change: toGraphviz correctly vis. Networks from S to T">
-      <change afterPath="$PROJECT_DIR$/src/AugmentingNetwork.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/MinIncreasementTests.java" afterDir="false" />
+    <list default="true" id="89e762b6-2b29-4ba8-90d3-4acfde115449" name="Changes" comment="last change: successful testing of testMinIncForFlowKIsIndeedMin">
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/ConservativeTests.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/BipartiteGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/BipartiteGraph.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Edge.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Edge.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Graph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Graph.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DirectedGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/DirectedGraph.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/GraphUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GraphUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Helpers.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Helpers.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Network.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Network.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Path.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Path.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NetworkTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/NetworkTests.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,7 +66,7 @@
       <recent name="C:\Users\phili\OneDrive\Sonstiges\GraphsPlayGround\src" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.MinIncreasementTests.testMinIncForFlowKIsIndeedMin (1)">
+  <component name="RunManager" selected="Application.Helpers">
     <configuration name="Helpers" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Helpers" />
       <module name="GraphsPlayGround" />
@@ -78,41 +74,44 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="MatchingTests.testMaximalCardinalityMatching" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ConservativeTests.testAcyclicShortestPathExample" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="GraphsPlayGround" />
       <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="MatchingTests" />
-      <option name="METHOD_NAME" value="testMaximalCardinalityMatching" />
+      <option name="MAIN_CLASS_NAME" value="ConservativeTests" />
+      <option name="METHOD_NAME" value="testAcyclicShortestPathExample" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="MinIncreasementTests.testMinIncForFlowKIsIndeedMin (1)" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ConservativeTests.testConservativeShortestPath" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="GraphsPlayGround" />
       <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="MinIncreasementTests" />
-      <option name="METHOD_NAME" value="testMinIncForFlowKIsIndeedMin(Network)" />
+      <option name="MAIN_CLASS_NAME" value="ConservativeTests" />
+      <option name="METHOD_NAME" value="testConservativeShortestPath(DirectedGraph)" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="MinIncreasementTests.testMinIncForFlowKIsIndeedMin" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ConservativeTests.testConservativeShortestPath.[1] DirectedGraph@4461c7e3" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="GraphsPlayGround" />
       <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="MinIncreasementTests" />
-      <option name="METHOD_NAME" value="testMinIncForFlowKIsIndeedMin" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="MAIN_CLASS_NAME" value="ConservativeTests" />
+      <option name="METHOD_NAME" value="testConservativeShortestPath(DirectedGraph)" />
+      <option name="TEST_OBJECT" value="uniqueId" />
+      <uniqueIds>
+        <uniqueId value="[engine:junit-jupiter]/[class:ConservativeTests]/[test-template:testConservativeShortestPath(DirectedGraph)]/[test-template-invocation:#1]" />
+      </uniqueIds>
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="MinIncreasementTests.testMinIncProducesFlowOfK" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ConservativeTests.testOnZU2Mod" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="GraphsPlayGround" />
       <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="MinIncreasementTests" />
-      <option name="METHOD_NAME" value="testMinIncProducesFlowOfK" />
+      <option name="MAIN_CLASS_NAME" value="ConservativeTests" />
+      <option name="METHOD_NAME" value="testOnZU2Mod" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -120,11 +119,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.MinIncreasementTests.testMinIncForFlowKIsIndeedMin (1)" />
         <item itemvalue="Application.Helpers" />
-        <item itemvalue="JUnit.MinIncreasementTests.testMinIncForFlowKIsIndeedMin" />
-        <item itemvalue="JUnit.MinIncreasementTests.testMinIncProducesFlowOfK" />
-        <item itemvalue="JUnit.MatchingTests.testMaximalCardinalityMatching" />
+        <item itemvalue="JUnit.ConservativeTests.testConservativeShortestPath.[1] DirectedGraph@4461c7e3" />
+        <item itemvalue="JUnit.ConservativeTests.testAcyclicShortestPathExample" />
+        <item itemvalue="JUnit.ConservativeTests.testConservativeShortestPath" />
+        <item itemvalue="JUnit.ConservativeTests.testOnZU2Mod" />
       </list>
     </recent_temporary>
   </component>
@@ -161,7 +160,14 @@
       <workItem from="1761302762820" duration="15104000" />
       <workItem from="1761334502147" duration="11161000" />
       <workItem from="1761503738162" duration="9422000" />
-      <workItem from="1761569576005" duration="14520000" />
+      <workItem from="1761569576005" duration="14999000" />
+      <workItem from="1761641245536" duration="1942000" />
+      <workItem from="1761925572531" duration="1231000" />
+      <workItem from="1762084861633" duration="8338000" />
+      <workItem from="1762196602064" duration="5444000" />
+      <workItem from="1762247699408" duration="9466000" />
+      <workItem from="1762271946094" duration="9204000" />
+      <workItem from="1762335114131" duration="7806000" />
     </task>
     <task id="LOCAL-00001" summary="Got getAugmentatingNetwork compiled">
       <option name="closed" value="true" />
@@ -195,7 +201,15 @@
       <option name="project" value="LOCAL" />
       <updated>1761044748615</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="last change: successful testing of testMinIncForFlowKIsIndeedMin">
+      <option name="closed" value="true" />
+      <created>1761609636909</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1761609636909</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -206,7 +220,8 @@
     <MESSAGE value="about to create Network extends DirectedGraph" />
     <MESSAGE value="working on Network.getMinimalCapacityIncreasement()" />
     <MESSAGE value="last change: toGraphviz correctly vis. Networks from S to T" />
-    <option name="LAST_COMMIT_MESSAGE" value="last change: toGraphviz correctly vis. Networks from S to T" />
+    <MESSAGE value="last change: successful testing of testMinIncForFlowKIsIndeedMin" />
+    <option name="LAST_COMMIT_MESSAGE" value="last change: successful testing of testMinIncForFlowKIsIndeedMin" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -214,6 +229,10 @@
         <breakpoint enabled="true" type="java-exception">
           <properties class="java.util.ConcurrentModificationException" package="java.util" />
           <option name="timeStamp" value="3" />
+        </breakpoint>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.NullPointerException" package="java.lang" />
+          <option name="timeStamp" value="63" />
         </breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <condition expression="!augMinEdgesOriginals.containsAll(reachableEdges) &amp;&amp; !reachableEdges.containsAll(augMinEdgesOriginals)" language="JAVA" />
@@ -231,10 +250,41 @@
           <line>125</line>
           <option name="timeStamp" value="62" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/DirectedGraph.java</url>
+          <line>164</line>
+          <option name="timeStamp" value="69" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/test/ConservativeTests.java</url>
+          <line>57</line>
+          <option name="timeStamp" value="71" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/DirectedGraph.java</url>
+          <line>185</line>
+          <option name="timeStamp" value="74" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/DirectedGraph.java</url>
+          <line>223</line>
+          <option name="timeStamp" value="75" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/Helpers.java</url>
+          <line>237</line>
+          <option name="timeStamp" value="79" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <condition expression="pid == 11" language="JAVA" />
+          <url>file://$PROJECT_DIR$/src/Helpers.java</url>
+          <line>229</line>
+          <option name="timeStamp" value="80" />
+        </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/Helpers.java</url>
           <line>129</line>
-          <properties class="Helpers" method="traverseNonDecTuples">
+          <properties class="Helpers">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />
           </properties>
@@ -243,7 +293,7 @@
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/Helpers.java</url>
           <line>133</line>
-          <properties class="Helpers" method="traverseNonDecTuples">
+          <properties class="Helpers">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />
           </properties>
@@ -257,6 +307,7 @@
         <watch expression="random.seed" />
         <watch expression="current.toString()" language="JAVA" />
         <watch expression="inc_flow_unit_tuple.toString()" language="JAVA" />
+        <watch expression="endNode.getIncomingEdges()" language="JAVA" />
       </configuration>
       <configuration name="Application">
         <watch expression="current.toString()" language="JAVA" />
