@@ -12,7 +12,7 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
 
     public DirectedGraph() {
         super();
-        LOG.setLevel(Level.ALL);
+        LOG.setLevel(Level.OFF);
     }
 
     public DirectedGraph(EdgeFactory<T, E> edgeFactory) {
@@ -63,7 +63,7 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
 
             if (startNode.equals(endNode)) return Path.emptyFinalWeights();
 
-            EdgeKey<T> pathKey = new EdgeKey<T>(startNode, endNode);
+            EdgeKey<T> pathKey = new EdgeKey<>(startNode, endNode);
 
             if (graph.ASPMemory.containsKey(pathKey)) {
                 return graph.ASPMemory.get(pathKey);
@@ -85,7 +85,7 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
                 aspTasks.add(newTask); newTask.fork();
             }
             //Compute only one shortest incoming path in current thread
-            Path<T> shortestPath = new AcyclicShortestPathTask<T>(graph, startNode, currIncomingEdge.getFrom(), depth + 1, seqDepthThreshold).compute().withEdge(currIncomingEdge);
+            Path<T> shortestPath = new AcyclicShortestPathTask<>(graph, startNode, currIncomingEdge.getFrom(), depth + 1, seqDepthThreshold).compute().withEdge(currIncomingEdge);
 
             for (AcyclicShortestPathTask<T> aspTask : aspTasks) {
                 Path<T> altPath = aspTask.join().withEdge(taskOrigIncEdgeMap.get(aspTask));
@@ -100,9 +100,10 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
     }
     private final static int ASP_MAX_SEQ_PATH_LEN = 40;
     public Path<T> acyclicShortestPathThreads(Node<T> startNode, Node<T> endNode, int maxExpectedPathLength) {
-        ForkJoinPool pool = new ForkJoinPool(); // defaults to # of cores
+        try (ForkJoinPool pool = new ForkJoinPool()) { // defaults to # of cores
             AcyclicShortestPathTask<T> initialTask = new AcyclicShortestPathTask<>((DirectedGraph<T, Edge<T>>) this, startNode, endNode, 0, maxExpectedPathLength - ASP_MAX_SEQ_PATH_LEN);
             return pool.invoke(initialTask);
+        }
     }
     public Path<T> acyclicShortestPathThreads(T s , T t, int maxExpectedPathLength) {
         return acyclicShortestPathThreads(getNode(s), getNode(t), maxExpectedPathLength);
@@ -122,10 +123,7 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
             return ASPMemory.get(pathKey);
         }
 
-        //if (endNode.getIncomingEdges().isEmpty()) return null;
-
-
-        //LOG.finest("\t".repeat(debug_depth) + "Path: " + startNode + " -> " + endNode);
+        LOG.finest("\t".repeat(debug_depth) + "Path: " + startNode + " -> " + endNode);
 
         List<Path<T>> extIncomingPaths = new LinkedList<>();
 
@@ -256,14 +254,7 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
         graphLabels.add("G"); graphLabels.add("H");
 
         Helpers.copyToClipboard(GraphUtils.combineIntoClusteredGraph(graphs, graphLabels));
-        //Node<CHNValue<T>> chgS = chg.getNode();
-        //Node<CHNValue<T>> chgT = chg.getNode(new CHNValue<>(t, 0));
 
-/*
-        Stream<Integer> ns = Stream.iterate(1, k -> k).limit(nodeCount - 1);
-        List<Path<CHNValue<T>>> shortestKPaths = ns.map(k -> chg.acyclicShortestPath(new CHNValue<>(s, 0), new CHNValue<>(t, k))).toList();
-
-*/
         long globalStart = System.nanoTime();
         List<Path<CHNValue<T>>> shortestKPaths = new LinkedList<>();
         for (int k = 1; k < nodeCount; k++) {
@@ -298,14 +289,7 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
         graphLabels.add("G"); graphLabels.add("H");
 
         Helpers.copyToClipboard(GraphUtils.combineIntoClusteredGraph(graphs, graphLabels));
-        //Node<CHNValue<T>> chgS = chg.getNode();
-        //Node<CHNValue<T>> chgT = chg.getNode(new CHNValue<>(t, 0));
 
-/*
-        Stream<Integer> ns = Stream.iterate(1, k -> k).limit(nodeCount - 1);
-        List<Path<CHNValue<T>>> shortestKPaths = ns.map(k -> chg.acyclicShortestPath(new CHNValue<>(s, 0), new CHNValue<>(t, k))).toList();
-
-*/
         Function<Integer, Double> loadFunction = k -> {
             return (double) (k + 1) * (this.getNodes().size() + this.getEdges().size()); //Does not produce equal time for all threads!
             //return (double) (k + 1) * Math.pow(this.getNodes().size(), 2);
@@ -318,14 +302,12 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
         //LOG.fine("Starting " + (nodeCount -1) + " k-path finding jobs on " + p + " processors");
         System.out.println("Starting " + (nodeCount -1) + " k-path finding jobs on " + p + " processors");
         try (ExecutorService exec = Executors.newFixedThreadPool(p)) {
-            //Map<Integer, Set<Integer>> threadToJobsMap = Helpers.distributeLoad(nodeCount -1, p, loadFunction);
+
             LoadDistributor<Integer> ld = LoadDistributor.moduloBased();
             Map<Integer, Set<Integer>> threadToJobsMap = ld.apply(IntStream.range(1, nodeCount).boxed().collect(Collectors.toList()), p);
 
-            //Map<Integer, String> threadInfo =  new HashMap<>();
-            //Helpers.printProcessorToJobsMap(threadToJobsMap, loadFunction);
             ThreadJobCollection<Integer> threadJobsInfo =
-                    new ThreadJobCollection<>(threadToJobsMap, loadFunction, "Load strategy: " + ld.toString());
+                    new ThreadJobCollection<>(threadToJobsMap, loadFunction, "Load strategy: " + ld);
 
             int threadIDCounter = 0;
 
@@ -348,16 +330,17 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
                 });
             }
             exec.shutdown();
-            boolean gracefulTermination = exec.awaitTermination(1, TimeUnit.DAYS);
+            //noinspection ResultOfMethodCallIgnored
+            exec.awaitTermination(1, TimeUnit.DAYS);
             for (int i = 1; i < nodeCount; i++) {
                 assert (finishedKs.contains(i)) : "Potential shortest path(s) of length K=" + i + " not explored!";
             }
 
             threadJobsInfo.setTotalTime(System.nanoTime() - globalStart);
-            System.out.println(threadJobsInfo.toString());
+            System.out.println(threadJobsInfo);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (InterruptedException e) {
+            System.out.println("Interrupted Exception during ExecutorService");
         }
         Path<CHNValue<T>> chgSP = shortestKPaths.stream().filter(Objects::nonNull).min(Comparator.comparingDouble(Path::getTotalWeight)).orElse(null);
 
@@ -366,14 +349,11 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
     }
 
     public enum ExecutionStrategy {
-        Sequential(0),
-        ExecutorService(1),
-        ForkJoinPool(2);
-        private final int code;
+        Sequential(),
+        ExecutorService(),
+        ForkJoinPool();
 
-        ExecutionStrategy(int code) {
-            this.code = code;
-        }
+        ExecutionStrategy() {}
     }
 
     public Path<T> shortestConservativePath(Node<T> s, Node<T> t, ExecutionStrategy strategy) {
@@ -382,7 +362,7 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
             case Sequential -> shortestConservativePathNonThreads(s, t, false);
             case ForkJoinPool -> shortestConservativePathNonThreads(s, t, true);
             case ExecutorService -> shortestConservativePathThreads(s, t);
-            case null, default -> throw new IllegalArgumentException("Invalid execution strategy");
+            case null -> throw new IllegalArgumentException("Invalid execution strategy");
         };
     }
     public Path<T> shortestConservativePath(T s, T t, ExecutionStrategy strategy) {
