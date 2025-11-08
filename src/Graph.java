@@ -1,11 +1,10 @@
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
 public abstract class Graph<T, E extends Edge<T>> {
 
-    static class EdgeKey<T> {
+    protected static class EdgeKey<T> {
         final Node<T> start;
         final Node<T> end;
 
@@ -30,7 +29,7 @@ public abstract class Graph<T, E extends Edge<T>> {
     }
 
     protected final Map<T, Node<T>> nodes = new HashMap<>();
-    protected final Map<EdgeKey, E> edges = new HashMap<>();
+    protected final Map<EdgeKey<T>, E> edges = new HashMap<>();
     protected final EdgeFactory<T, E> edgeFactory;
 
     public Graph() {
@@ -82,16 +81,10 @@ public abstract class Graph<T, E extends Edge<T>> {
     //Below methods rely on setting both Outgoing and Incoming edges for both start and end node
     //for undirected graphs
     public static <T> Set<Node<T>> neighbours(Set<Node<T>> S) {
-        return S.stream().flatMap(node -> {
-            return node.getOutgoingEdges().stream().map(Edge::getTo);
-        }).collect(Collectors.toSet());
+        return S.stream().flatMap(node -> node.getOutgoingEdges().stream().map(Edge::getTo)).collect(Collectors.toSet());
     }
     public static <T> Set<Edge<T>> neighbourEdges(Set<Node<T>> S) {
-        return S.stream().flatMap(n -> {
-            return n.getOutgoingEdges().stream().filter(e -> {
-                return  !S.contains(e.getTo());
-            });
-        }).collect(Collectors.toSet());
+        return S.stream().flatMap(n -> n.getOutgoingEdges().stream().filter(e -> !S.contains(e.getTo()))).collect(Collectors.toSet());
     }
 
     public boolean hasEdge(Node<T> from, Node<T> to) {

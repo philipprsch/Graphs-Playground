@@ -18,7 +18,7 @@ class ThreadJobCollection<J extends Comparable<Integer>> { //J is Job Type Param
         threadToTimeMap.put(threadID, time);
     }
 
-    private String description;
+    private final String description;
 
     private long totalTime;
 

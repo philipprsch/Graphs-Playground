@@ -1,12 +1,9 @@
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
-import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 
@@ -50,7 +47,7 @@ public class Helpers {
     }
 
     public static <T> List<LinkedList<T>> powerSet(LinkedList<T> Astar) {
-        if (Astar.isEmpty()) return List.of(new LinkedList<T>());
+        if (Astar.isEmpty()) return List.of(new LinkedList<>());
         LinkedList<T> A = new LinkedList<>(Astar);
         T a = A.pop();
 
@@ -107,6 +104,7 @@ public class Helpers {
         System.out.println(separator);
     }
 
+    @SafeVarargs
     private static <T> List<T> concat(Set<T>... sets) {
         List<T> all = new ArrayList<>();
         for (Set<T> s : sets) all.addAll(s);

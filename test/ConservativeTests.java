@@ -21,9 +21,7 @@ public class ConservativeTests {
                 0.5,        // probability of edge
                 random,         // seed for reproducibility
                 (i, nodeCount) -> (i == 0 ? "S" : (i == nodeCount -1 ? "T" : "V" + i)),
-                (random, edge) -> {
-                    return Math.round((random.nextDouble(7.0) - 5.0) * 100.0) / 100.0;
-                },
+                (random, edge) -> Math.round((random.nextDouble(7.0) - 5.0) * 100.0) / 100.0,
                 true, true
         ))).limit(10);
     }
@@ -58,7 +56,7 @@ public class ConservativeTests {
     void testConservativeShortestPath(DirectedGraph<String, Edge<String>> graph) {
         Path<String> sp = graph.shortestConservativePath("S", "T", DirectedGraph.ExecutionStrategy.Sequential);
         if (sp != null) {
-            System.out.println("Shortest Path is " + sp.toString() + "with " + sp.getEdges().size() + " edges.");
+            System.out.println("Shortest Path is " + sp + "with " + sp.getEdges().size() + " edges.");
         } else {
             System.out.println("No path.");
         }
@@ -75,13 +73,13 @@ public class ConservativeTests {
     void testDifferentStrategies(DirectedGraph<String, Edge<String>> graph) {
         Path<String> sp = graph.shortestConservativePath("S", "T", DirectedGraph.ExecutionStrategy.ForkJoinPool);
         if (sp != null) {
-            System.out.println("Shortest Path is " + sp.toString() + "with " + sp.getEdges().size() + " edges.");
+            System.out.println("Shortest Path is " + sp + "with " + sp.getEdges().size() + " edges.");
         } else {
             System.out.println("No path.");
         }
         Path<String> sp_threads = graph.shortestConservativePath("S", "T", DirectedGraph.ExecutionStrategy.ExecutorService);
         if (sp_threads != null) {
-            System.out.println("Shortest Path is " + sp_threads.toString() + "with " + sp_threads.getEdges().size() + " edges.");
+            System.out.println("Shortest Path is " + sp_threads + "with " + sp_threads.getEdges().size() + " edges.");
         } else {
             System.out.println("No path.");
         }
@@ -99,7 +97,7 @@ public class ConservativeTests {
 
         Path<String> sp = graph.shortestConservativePath("S", "T", DirectedGraph.ExecutionStrategy.Sequential);
         if (sp != null) {
-            System.out.println("Shortest Path is " + sp.toString() + "with " + sp.getEdges().size() + " edges.");
+            System.out.println("Shortest Path is " + sp + "with " + sp.getEdges().size() + " edges.");
         } else {
             System.out.println("No path.");
         }
@@ -117,7 +115,7 @@ public class ConservativeTests {
 
         Path<String> sp = graph.shortestConservativePath("S", "T", DirectedGraph.ExecutionStrategy.Sequential);
         if (sp != null) {
-            System.out.println("Shortest Path is " + sp.toString() + "with " + sp.getEdges().size() + " edges.");
+            System.out.println("Shortest Path is " + sp + "with " + sp.getEdges().size() + " edges.");
         } else {
             System.out.println("No path.");
         }

@@ -66,7 +66,7 @@ public interface LoadDistributor<J extends Comparable<Integer>> {
             @Override
             public String toString() {
                 return "Interleaving";
-            };
+            }
         };
     }
 
