@@ -4,14 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="89e762b6-2b29-4ba8-90d3-4acfde115449" name="Changes" comment="last change: successful testing of testMinIncForFlowKIsIndeedMin">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/ConservativeTests.java" afterDir="false" />
+    <list default="true" id="89e762b6-2b29-4ba8-90d3-4acfde115449" name="Changes" comment="last changes: acyclicShortestPath (w. memory), conservativeShortestPath (w. threads), before new distributeLoad function">
+      <change afterPath="$PROJECT_DIR$/src/LoadDistributor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ThreadJobCollection.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/DirectedGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/DirectedGraph.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GraphUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GraphUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Graph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Graph.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Helpers.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Helpers.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Path.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Path.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UndirectedGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/UndirectedGraph.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/ConservativeTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/ConservativeTests.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,13 +24,19 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Interface" />
         <option value="Class" />
+        <option value="Interface" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/DirectedGraph.java" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
@@ -65,10 +74,13 @@
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\phili\OneDrive\Sonstiges\GraphsPlayGround\src" />
     </key>
+    <key name="MoveInnerDialog.RECENTS_KEY">
+      <recent name="" />
+    </key>
   </component>
-  <component name="RunManager" selected="Application.Helpers">
-    <configuration name="Helpers" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Helpers" />
+  <component name="RunManager" selected="JUnit.ConservativeTests.testDifferentStrategies">
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Main" />
       <module name="GraphsPlayGround" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -107,11 +119,11 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ConservativeTests.testOnZU2Mod" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ConservativeTests.testDifferentStrategies" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="GraphsPlayGround" />
       <option name="PACKAGE_NAME" value="" />
       <option name="MAIN_CLASS_NAME" value="ConservativeTests" />
-      <option name="METHOD_NAME" value="testOnZU2Mod" />
+      <option name="METHOD_NAME" value="testDifferentStrategies(DirectedGraph)" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -119,11 +131,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Helpers" />
-        <item itemvalue="JUnit.ConservativeTests.testConservativeShortestPath.[1] DirectedGraph@4461c7e3" />
+        <item itemvalue="JUnit.ConservativeTests.testDifferentStrategies" />
+        <item itemvalue="Application.Main" />
         <item itemvalue="JUnit.ConservativeTests.testAcyclicShortestPathExample" />
+        <item itemvalue="JUnit.ConservativeTests.testConservativeShortestPath.[1] DirectedGraph@4461c7e3" />
         <item itemvalue="JUnit.ConservativeTests.testConservativeShortestPath" />
-        <item itemvalue="JUnit.ConservativeTests.testOnZU2Mod" />
       </list>
     </recent_temporary>
   </component>
@@ -167,7 +179,11 @@
       <workItem from="1762196602064" duration="5444000" />
       <workItem from="1762247699408" duration="9466000" />
       <workItem from="1762271946094" duration="9204000" />
-      <workItem from="1762335114131" duration="7806000" />
+      <workItem from="1762335114131" duration="12987000" />
+      <workItem from="1762377601511" duration="786000" />
+      <workItem from="1762418251834" duration="13497000" />
+      <workItem from="1762467437220" duration="5462000" />
+      <workItem from="1762534672432" duration="18071000" />
     </task>
     <task id="LOCAL-00001" summary="Got getAugmentatingNetwork compiled">
       <option name="closed" value="true" />
@@ -209,7 +225,15 @@
       <option name="project" value="LOCAL" />
       <updated>1761609636909</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="last changes: acyclicShortestPath (w. memory), conservativeShortestPath (w. threads), before new distributeLoad function">
+      <option name="closed" value="true" />
+      <created>1762343606545</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1762343606545</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -221,7 +245,8 @@
     <MESSAGE value="working on Network.getMinimalCapacityIncreasement()" />
     <MESSAGE value="last change: toGraphviz correctly vis. Networks from S to T" />
     <MESSAGE value="last change: successful testing of testMinIncForFlowKIsIndeedMin" />
-    <option name="LAST_COMMIT_MESSAGE" value="last change: successful testing of testMinIncForFlowKIsIndeedMin" />
+    <MESSAGE value="last changes: acyclicShortestPath (w. memory), conservativeShortestPath (w. threads), before new distributeLoad function" />
+    <option name="LAST_COMMIT_MESSAGE" value="last changes: acyclicShortestPath (w. memory), conservativeShortestPath (w. threads), before new distributeLoad function" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -256,30 +281,14 @@
           <option name="timeStamp" value="69" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/test/ConservativeTests.java</url>
-          <line>57</line>
-          <option name="timeStamp" value="71" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/DirectedGraph.java</url>
           <line>185</line>
           <option name="timeStamp" value="74" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/DirectedGraph.java</url>
-          <line>223</line>
-          <option name="timeStamp" value="75" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/Helpers.java</url>
-          <line>237</line>
+          <line>238</line>
           <option name="timeStamp" value="79" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <condition expression="pid == 11" language="JAVA" />
-          <url>file://$PROJECT_DIR$/src/Helpers.java</url>
-          <line>229</line>
-          <option name="timeStamp" value="80" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/Helpers.java</url>
@@ -318,5 +327,8 @@
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
     <select />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/GraphsPlayground$ConservativeTests_testDifferentStrategies.ic" NAME="ConservativeTests.testDifferentStrategies Coverage Results" MODIFIED="1762558696575" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
 </project>

@@ -7,18 +7,40 @@ import java.util.stream.Stream;
 public class Path<T> {
     private final LinkedList<Edge<T>> edges = new LinkedList<>();
 
-    public Path() {}
+    private Double totalWeight = null;
+
+    //weightUnmod : boolean : set to false by user if edges of this path may be modified
+    private final boolean edgeWeightsFinal;
+
+    public Path(boolean edgeWeightsFinal) {
+        this.edgeWeightsFinal = edgeWeightsFinal;
+    }
+
+    public Path() {
+        this(false);
+    }
 
     // Copy constructor (useful for building new paths from existing ones)
     public Path(Path<T> other) {
+        this(other, other.edgeWeightsFinal);
+    }
+    public Path(Path<T> other, boolean edgeWeightsFinal) {
         this.edges.addAll(other.edges);
+        this.edgeWeightsFinal = edgeWeightsFinal;
     }
 
     public static <U> Path<U> empty() {
         return new Path<>();
     }
+    public static <U> Path<U> emptyFinalWeights() {
+        return new Path<>(true);
+    }
+
     public static <T> Path<T> of(Stream<Edge<T>> edges) {
-        Path<T> newPath = new Path<>();
+        return Path.of(edges, false);
+    }
+    public static <T> Path<T> of(Stream<Edge<T>> edges, boolean weightUnmod) {
+        Path<T> newPath = new Path<>(weightUnmod);
         edges.forEach(newPath::addEdge);
         return newPath;
     }
@@ -31,6 +53,7 @@ public class Path<T> {
 
     public void addEdge(Edge<T> edge) {
         edges.add(edge);
+        if (this.totalWeight != null) this.totalWeight += edge.getWeight();
     }
 
     public List<Edge<T>> getEdges() {
@@ -45,12 +68,17 @@ public class Path<T> {
         return edges.isEmpty() ? null : edges.getLast().getTo();
     }
 
-    public double getTotalWeight() {
+    public double getTotalWeight(boolean useCached) {
+        if (useCached && this.totalWeight != null) return this.totalWeight;
         double sum = 0.0;
         for (Edge<T> edge : edges) {
             sum += edge.getWeight() != null ? edge.getWeight() : 0.0;
         }
+        totalWeight = sum;
         return sum;
+    }
+    public double getTotalWeight() {
+        return getTotalWeight(edgeWeightsFinal);
     }
     public double getMinWeight() {
         Edge<T> minEdge = this.getEdges().stream().min(Comparator.comparingDouble(Edge::getWeight)).orElseThrow();

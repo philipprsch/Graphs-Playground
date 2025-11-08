@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 public abstract class Graph<T, E extends Edge<T>> {
 
-    class EdgeKey {
+    static class EdgeKey<T> {
         final Node<T> start;
         final Node<T> end;
 
@@ -18,7 +18,7 @@ public abstract class Graph<T, E extends Edge<T>> {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof Graph.EdgeKey)) return false;
-            Graph<T, E>.EdgeKey key = (Graph<T, E>.EdgeKey) o;
+            Graph.EdgeKey key = (EdgeKey) o;
             return Objects.equals(start, key.start) &&
                     Objects.equals(end, key.end);
         }
@@ -69,7 +69,7 @@ public abstract class Graph<T, E extends Edge<T>> {
         return edge;
     }
     public Edge<T> getEdge(Node<T> from, Node<T> to) {
-        return edges.get(new EdgeKey(from, to));
+        return edges.get(new EdgeKey<>(from, to));
     }
 
     public E addEdge(T from, T to) {
@@ -95,6 +95,6 @@ public abstract class Graph<T, E extends Edge<T>> {
     }
 
     public boolean hasEdge(Node<T> from, Node<T> to) {
-        return edges.containsKey(new EdgeKey(from, to));
+        return edges.containsKey(new EdgeKey<>(from, to));
     }
 }

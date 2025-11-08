@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 
@@ -105,16 +106,6 @@ public class Helpers {
         }
         System.out.println(separator);
     }
-    public static <A, E extends A> E copy(E original) {
-        try {
-            @SuppressWarnings("unchecked")
-            Class<E> clazz = (Class<E>) original.getClass(); // runtime type of E
-            Constructor<E> ctor = clazz.getDeclaredConstructor(clazz); // copy constructor
-            return ctor.newInstance(original);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to copy " + original.getClass(), e);
-        }
-    }
 
     private static <T> List<T> concat(Set<T>... sets) {
         List<T> all = new ArrayList<>();
@@ -199,58 +190,13 @@ public class Helpers {
         }
         return res;
     }
-
-    public static int[] getSimilarExpLoadClassesBounds(int rangeStart, int rangeEnd, int K, double loadExponent) {
-
-        if ((rangeEnd - rangeStart + 1) <= K + 1) {
-            int[] bounds = new int[(rangeEnd - rangeStart + 1)];
-            for (int i = 0; i < (rangeEnd - rangeStart + 1); i++) {
-                bounds[i] = i;
-            }
-            return bounds;
+    static String formatLimited(String text, int maxLen) {
+        if (text.length() > maxLen) {
+            // Leave room for the "..."
+            return text.substring(0, Math.max(0, maxLen - 3)) + "...";
         }
-        int[] bounds = new int[K + 1];
-        for (int j = 0; j < K + 1; j++) {
-            bounds[j] = rangeStart +  (int) ((rangeEnd - rangeStart) * Math.pow((double) j / K, 1.0 / (loadExponent + 1)));
-        }
-        return bounds;
+        return text;
     }
-
-    //Distribute jobs across p processors, getJobLoad: {JOB_IDs} -> {Load Values}
-    public static Map<Integer, Set<Integer>> distributeLoad(int jobs, int p, Function<Integer, Double> getJobLoad) {
-        Map<Integer, Set<Integer>> processorToJobsMap = new HashMap<>();
-        double totalLoad = IntStream.range(0, jobs).mapToDouble(getJobLoad::apply).sum();
-        double avgLoad = totalLoad / p;
-        int currentJobID = jobs - 1;
-        int pid = 0;
-        while (pid < p) {
-            if (currentJobID < 0) break; //All jobs have been assigned
-            double currentPLoad = 0.0;
-            processorToJobsMap.computeIfAbsent(pid, e -> new HashSet<Integer>());
-            while (currentPLoad < avgLoad && currentJobID >= 0) {
-                processorToJobsMap.get(pid).add(currentJobID);
-                double currentJobLoad = getJobLoad.apply(currentJobID);
-                currentPLoad += currentJobLoad;
-                currentJobID--;
-            }
-            pid++;
-        }
-        while (currentJobID >= 0) { //Ensure that all jobs are assigned
-            processorToJobsMap.get(p - 1).add(currentJobID);
-            currentJobID--;
-        }
-        return processorToJobsMap;
-    }
-
-    static void printProcessorToJobsMap(Map<Integer, Set<Integer>> processorToJobsMap) {
-        for (Map.Entry<Integer, Set<Integer>> entry : processorToJobsMap.entrySet()) {
-            Integer processorId = entry.getKey();
-            Set<Integer> jobs = entry.getValue();
-            System.out.println("Processor " + processorId + " -> " + jobs);
-        }
-    }
-
-
     public static void main(String[] args) {
 //        traverseNonDecTuplesNonRec(31, 82, (tuple) -> {
 //            System.out.println(tuple);
@@ -259,9 +205,14 @@ public class Helpers {
         //System.out.println(powerSet(new LinkedList<>(List.of(1, 2, 3))));
         //System.out.println(Arrays.toString(getSimilarExpLoadClassesBounds(0, 100, 3, 1.0)));
 
-        Map<Integer, Set<Integer>> map = distributeLoad(200, 12, jobID -> {
-            return (double) ((jobID + 1) * (100 + 65));
-        });
-        printProcessorToJobsMap(map);
+//        Map<Integer, Set<Integer>> map = distributeLoad(200, 12, jobID -> {
+//            return (double) ((jobID + 1) * (100 + 65));
+//        });
+        //printProcessorToJobsMap(map, );
+
+        //Test Double Formating
+
+        String output = String.format("%5.2f", Double.parseDouble("1.1221119E10") * 100.0 / Double.parseDouble("1.21572676E11")) + "%";
+        System.out.println(output);
     }
 }

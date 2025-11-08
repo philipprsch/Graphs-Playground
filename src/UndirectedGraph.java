@@ -10,7 +10,7 @@ public class UndirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
 
     @Override
     public void addExistingEdge(E edge) {
-        edges.put(new EdgeKey(edge.getFrom(), edge.getTo()), edge);
+        edges.put(new EdgeKey<T>(edge.getFrom(), edge.getTo()), edge);
 
         // For undirected graphs, both nodes share the edge as incoming/outgoing
         edge.getFrom().addOutgoingEdge(edge);
