@@ -1,9 +1,7 @@
-import java.lang.reflect.Constructor;
-
 public class Edge<T> implements GraphvizComponent {
-    private final Node<T> from;
-    private final Node<T> to;
-    private Double weight;
+    protected final Node<T> from;
+    protected final Node<T> to;
+    protected Double weight;
 
     public Edge(Node<T> from, Node<T> to, Double weight) {
         this.from = from;
@@ -34,6 +32,16 @@ public class Edge<T> implements GraphvizComponent {
         this.weight = weight;
     }
 
+    //Use clone() to get a new Edge-Instance with all the attributes of this
+    //except for new from and to nodes. (Useful for subgraph creation)
+    //Override this methods in subclasses of Edge to transfer sub-class specific attributes
+    public Edge<T> clone(Node<T> newFrom, Node<T> newTo) {
+        return new Edge<>(newFrom, newTo, this.getWeight());
+    }
+
+    public Edge<T> reversed() {
+        return this.clone(this.getTo(), this.getFrom());
+    }
     @Override
     public String toString() {
         return isWeighted()

@@ -6,9 +6,13 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.la4j.Matrices.ZERO_MATRIX;
+
 public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
 
     private static final Logger LOG = Logger.getLogger(DirectedGraph.class.getName());
+    private static final boolean DEBUGGING = false;
+    private static final boolean BENCHMARKING = false;
 
     public DirectedGraph() {
         super();
@@ -17,30 +21,55 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
 
     public DirectedGraph(EdgeFactory<T, E> edgeFactory) {
         super(edgeFactory);
+        LOG.setLevel(Level.OFF);
     }
 
     @Override
-    public void addExistingEdge(E edge) {
-        edges.put(new EdgeKey<>(edge.getFrom(), edge.getTo()), edge);
+    public void _addExistingEdge(E edge) {
         edge.getFrom().addOutgoingEdge(edge);
         edge.getTo().addIncomingEdge(edge);
+
+        int fromIndex = this.nodeIndexer.inverse().get(edge.getFrom());
+        int toIndex = this.nodeIndexer.inverse().get(edge.getTo());
+        if (this.isConMatUpToDate) this.connectivityMatrix.set(fromIndex, toIndex, 1); //Do not use getter!
     }
 
     @Override
     public void removeEdge(E edge) {
         EdgeKey<T> key = new EdgeKey<>(edge.getFrom(), edge.getTo());
 
-        //System.out.println("Before remove: " + edges.get(key).toString() + " Removing: " + edge.toString());
         if (!edges.remove(key, edge)) {
             throw new RuntimeException("Removing edge failed, wrong mapping");
         }
         edge.getFrom().removeOutgoingEdge(edge);
         edge.getTo().removeIncomingEdge(edge);
+
+        int fromIndex = this.nodeIndexer.inverse().get(edge.getFrom());
+        int toIndex = this.nodeIndexer.inverse().get(edge.getTo());
+        this.getConnectivityMatrix().set(fromIndex, toIndex, 0);
+    }
+    @Override
+    public Edge<T> getEdge(Node<T> from, Node<T> to) {
+        return edges.get(new EdgeKey<>(from, to));
+    }
+    @Override
+    public boolean hasEdge(Node<T> from, Node<T> to) {
+        return edges.containsKey(new EdgeKey<>(from, to));
+    }
+    @Override
+    public boolean hasCircle() {
+        //Check if power of con. mat. is O-Matrix
+        return !getConnectivityMatrix().power(nodes.size()).is(ZERO_MATRIX);
     }
 
     //Get the shortest - in terms of summed edge weights - path in a know to be ACYCLIC graph
 
     private final Map<EdgeKey<T>, Path<T>> ASPMemory = Collections.synchronizedMap(new HashMap<>());
+
+    public void clearMemory() {
+        this.lastConHelperGraph = null;
+        ASPMemory.clear();
+    }
 
 
     static class AcyclicShortestPathTask<T> extends RecursiveTask<Path<T>> {
@@ -116,14 +145,12 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
 
         EdgeKey<T> pathKey = new EdgeKey<>(startNode, endNode);
 
-        //System.out.println("\t".repeat(debug_depth) + "Path: " + startNode + " -> " + endNode + (ASPMemory.containsKey(pathKey) ? " MEMORY" : ""));
+        if (DEBUGGING) LOG.finest("\t".repeat(debug_depth) + "Path: " + startNode + " -> " + endNode + (ASPMemory.containsKey(pathKey) ? " MEMORY" : ""));
         //Use containsKey to return null only if we mapped pathKey to null <=>
         //we have previously computed, that no path from S to T exists
         if (ASPMemory.containsKey(pathKey)) {
             return ASPMemory.get(pathKey);
         }
-
-        LOG.finest("\t".repeat(debug_depth) + "Path: " + startNode + " -> " + endNode);
 
         List<Path<T>> extIncomingPaths = new LinkedList<>();
 
@@ -168,27 +195,6 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
     public Path<T> shortestPath(T startNode, T endNode) {
         return shortestPath(getNode(startNode), getNode(endNode));
     }
-    public Set<Node<T>> getReachableNodes(Node<T> start) {
-        if (!nodes.containsKey(start.getValue())) throw new IllegalArgumentException("Node not part of Graph");
-
-        LinkedList<Node<T>> queue = new LinkedList<>();
-        Set<Node<T>> visited = new HashSet<>();
-
-        visited.add(start);
-        queue.add(start);
-
-        while (!queue.isEmpty()) {
-            Node<T> currentNode = queue.pop();
-            for (Edge<T> outgoing : currentNode.getOutgoingEdges()) {
-                Node<T> neighbour = outgoing.getTo();
-                if (visited.add(neighbour)) {
-                    queue.add(neighbour);
-                }
-
-            }
-        }
-        return visited;
-    }
 
     public boolean isConservative() {
         return false; //TODO: Implement this method
@@ -221,7 +227,12 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
         }
     }
 
+    private DirectedGraph<CHNValue<T>, Edge<CHNValue<T>>> lastConHelperGraph = null;
     private DirectedGraph<CHNValue<T>, Edge<CHNValue<T>>> getConservativeHelperGraph() {
+        return getConservativeHelperGraph(false);
+    }
+    private DirectedGraph<CHNValue<T>, Edge<CHNValue<T>>> getConservativeHelperGraph(boolean forceRecalculation) {
+        if (!forceRecalculation && lastConHelperGraph != null) return lastConHelperGraph;
         DirectedGraph<CHNValue<T>, Edge<CHNValue<T>>> chg = new DirectedGraph<>();
         int nodeCount = this.nodes.size();
 
@@ -236,7 +247,7 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
                 chg.addExistingEdge(new Edge<>(chg.getNode(new CHNValue<>(e.getFrom(), k)), chg.getNode(new CHNValue<>(e.getTo(), k + 1)), e.getWeight()));
             }
         });
-
+        lastConHelperGraph = chg;
         return chg;
     }
 
@@ -247,15 +258,15 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
         DirectedGraph<CHNValue<T>, Edge<CHNValue<T>>> chg = this.getConservativeHelperGraph();
 
         //Debugging stuff
-        List<String> graphs = new LinkedList<>();
-        List<String> graphLabels = new LinkedList<>();
-        graphs.add(GraphUtils.toGraphviz(this));
-        graphs.add(GraphUtils.toGraphviz(chg));
-        graphLabels.add("G"); graphLabels.add("H");
+        if (DEBUGGING) {
+            List<String> graphs = new LinkedList<>();
+            List<String> graphLabels = new LinkedList<>();
+            graphs.add(GraphUtils.toGraphviz(this));
+            graphs.add(GraphUtils.toGraphviz(chg));
+            graphLabels.add("G"); graphLabels.add("H");
+            Helpers.copyToClipboard(GraphUtils.combineIntoClusteredGraph(graphs, graphLabels));
+        }
 
-        Helpers.copyToClipboard(GraphUtils.combineIntoClusteredGraph(graphs, graphLabels));
-
-        long globalStart = System.nanoTime();
         List<Path<CHNValue<T>>> shortestKPaths = new LinkedList<>();
         for (int k = 1; k < nodeCount; k++) {
             if (forkJoin) {
@@ -265,8 +276,6 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
             }
         }
         Path<CHNValue<T>> chgSP = shortestKPaths.stream().filter(Objects::nonNull).min(Comparator.comparingDouble(Path::getTotalWeight)).orElse(null);
-        long totalTime = System.nanoTime() - globalStart;
-        System.out.println((forkJoin ? "ForkJoin: " : "Sequential: ") + String.format("%6.1f", (totalTime / 1_000_000.0)) + "ms");
 
         if (chgSP == null) return null;
         return Path.of(chgSP.getEdges().stream().map(e -> this.getEdge(e.getFrom().getValue().node, e.getTo().getValue().node)));
@@ -282,13 +291,15 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
         //End
 
         //Debugging stuff
-        List<String> graphs = new LinkedList<>();
-        List<String> graphLabels = new LinkedList<>();
-        graphs.add(GraphUtils.toGraphviz(this));
-        graphs.add(GraphUtils.toGraphviz(chg));
-        graphLabels.add("G"); graphLabels.add("H");
+        if (DEBUGGING) {
+            List<String> graphs = new LinkedList<>();
+            List<String> graphLabels = new LinkedList<>();
+            graphs.add(GraphUtils.toGraphviz(this));
+            graphs.add(GraphUtils.toGraphviz(chg));
+            graphLabels.add("G"); graphLabels.add("H");
 
-        Helpers.copyToClipboard(GraphUtils.combineIntoClusteredGraph(graphs, graphLabels));
+            Helpers.copyToClipboard(GraphUtils.combineIntoClusteredGraph(graphs, graphLabels));
+        }
 
         Function<Integer, Double> loadFunction = k -> {
             return (double) (k + 1) * (this.getNodes().size() + this.getEdges().size()); //Does not produce equal time for all threads!
@@ -299,15 +310,16 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
         Set<Path<CHNValue<T>>> shortestKPaths = Collections.synchronizedSet(new HashSet<>());
         Set<Integer> finishedKs = Collections.synchronizedSet(new HashSet<>());
         int p = Runtime.getRuntime().availableProcessors();
-        //LOG.fine("Starting " + (nodeCount -1) + " k-path finding jobs on " + p + " processors");
-        System.out.println("Starting " + (nodeCount -1) + " k-path finding jobs on " + p + " processors");
+
+        LOG.fine("Starting " + (nodeCount -1) + " k-path finding jobs on " + p + " processors");
         try (ExecutorService exec = Executors.newFixedThreadPool(p)) {
 
             LoadDistributor<Integer> ld = LoadDistributor.moduloBased();
             Map<Integer, Set<Integer>> threadToJobsMap = ld.apply(IntStream.range(1, nodeCount).boxed().collect(Collectors.toList()), p);
 
-            ThreadJobCollection<Integer> threadJobsInfo =
-                    new ThreadJobCollection<>(threadToJobsMap, loadFunction, "Load strategy: " + ld);
+            ThreadJobCollection<Integer> threadJobsInfoTemp = null;
+            if (BENCHMARKING) threadJobsInfoTemp = new ThreadJobCollection<>(threadToJobsMap, loadFunction, "Load strategy: " + ld);
+            final ThreadJobCollection<Integer> threadJobsInfo = threadJobsInfoTemp;
 
             int threadIDCounter = 0;
 
@@ -316,28 +328,35 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
                 final int threadIDCounterCurrent = threadIDCounter++;
                 exec.submit(() -> {
 
-                    long start = System.nanoTime();
+                    long start = 0L;
+                    if (BENCHMARKING) start = System.nanoTime();
 
                     for (Integer k : pidJobs) {
                         shortestKPaths.add(chg.acyclicShortestPathSequential(new CHNValue<>(s, 0), new CHNValue<>(t, k)));
                         finishedKs.add(k);
                     }
 
-                    long duration = System.nanoTime() - start;
+                    if (BENCHMARKING) {
+                        long duration = System.nanoTime() - start;
 
-                    threadJobsInfo.setThreadName(threadIDCounterCurrent, Thread.currentThread().getName());
-                    threadJobsInfo.setThreadTime(threadIDCounterCurrent, duration);
+                        threadJobsInfo.setThreadName(threadIDCounterCurrent, Thread.currentThread().getName());
+                        threadJobsInfo.setThreadTime(threadIDCounterCurrent, duration);
+                    }
                 });
             }
             exec.shutdown();
             //noinspection ResultOfMethodCallIgnored
             exec.awaitTermination(1, TimeUnit.DAYS);
-            for (int i = 1; i < nodeCount; i++) {
-                assert (finishedKs.contains(i)) : "Potential shortest path(s) of length K=" + i + " not explored!";
+            if (DEBUGGING) {
+                for (int i = 1; i < nodeCount; i++) {
+                    assert (finishedKs.contains(i)) : "Potential shortest path(s) of length K=" + i + " not explored!";
+                }
             }
 
-            threadJobsInfo.setTotalTime(System.nanoTime() - globalStart);
-            System.out.println(threadJobsInfo);
+            if (BENCHMARKING) {
+                threadJobsInfo.setTotalTime(System.nanoTime() - globalStart);
+                LOG.info(threadJobsInfo.toString());
+            }
 
         } catch (InterruptedException e) {
             System.out.println("Interrupted Exception during ExecutorService");
@@ -347,7 +366,6 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
         if (chgSP == null) return null;
         return Path.of(chgSP.getEdges().stream().map(e -> this.getEdge(e.getFrom().getValue().node, e.getTo().getValue().node)));
     }
-
     public enum ExecutionStrategy {
         Sequential(),
         ExecutorService(),
@@ -356,21 +374,18 @@ public class DirectedGraph<T, E extends Edge<T>> extends Graph<T, E> {
         ExecutionStrategy() {}
     }
 
+    @SuppressWarnings("UnnecessaryDefault")
     public Path<T> shortestConservativePath(Node<T> s, Node<T> t, ExecutionStrategy strategy) {
         //return shortestConservativePath(this.getNode(s), this.getNode(t));
         return switch (strategy) {
             case Sequential -> shortestConservativePathNonThreads(s, t, false);
             case ForkJoinPool -> shortestConservativePathNonThreads(s, t, true);
             case ExecutorService -> shortestConservativePathThreads(s, t);
-            case null -> throw new IllegalArgumentException("Invalid execution strategy");
+            case null, default -> throw new IllegalArgumentException("Invalid execution strategy");
         };
     }
     public Path<T> shortestConservativePath(T s, T t, ExecutionStrategy strategy) {
         //return shortestConservativePath(this.getNode(s), this.getNode(t));
         return shortestConservativePath(this.getNode(s), this.getNode(t), strategy);
     }
-
-
-
-
 }

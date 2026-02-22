@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="ANALYZE_INJECTED_CODE" value="false" />
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="89e762b6-2b29-4ba8-90d3-4acfde115449" name="Changes" comment="clean up warnings">
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/UndirectedEdge.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/UnionFind.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/GraphBenchmark.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/MSTTests.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/UndirectedEdgeTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GraphsPlayGround.iml" beforeDir="false" afterPath="$PROJECT_DIR$/GraphsPlayGround.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AugmentingNetwork.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/AugmentingNetwork.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DirectedGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/DirectedGraph.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Edge.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Edge.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Graph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Graph.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/GraphUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GraphUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Helpers.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Helpers.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/LoadDistributor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/LoadDistributor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ThreadJobCollection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ThreadJobCollection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Node.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Node.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UndirectedGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/UndirectedGraph.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/ConservativeTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/ConservativeTests.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -21,8 +36,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -63,7 +78,11 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/phili/OneDrive/Sonstiges/GraphsPlayground/src/Main.java&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.appearance&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.import&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -75,64 +94,70 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.ConservativeTests.testDifferentStrategies">
-    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Main" />
-      <module name="GraphsPlayGround" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ConservativeTests.testAcyclicShortestPathExample" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="GraphsPlayGround" />
+  <component name="RunManager" selected="JUnit.MSTTests.benchmarkMSTMethods">
+    <configuration name="MSTTests.benchmarkMSTMethods" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="graph-playground" />
       <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="ConservativeTests" />
-      <option name="METHOD_NAME" value="testAcyclicShortestPathExample" />
+      <option name="MAIN_CLASS_NAME" value="MSTTests" />
+      <option name="METHOD_NAME" value="benchmarkMSTMethods(UndirectedGraph)" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ConservativeTests.testConservativeShortestPath" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="GraphsPlayGround" />
+    <configuration name="MSTTests.testMSTMethods" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="graph-playground" />
       <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="ConservativeTests" />
-      <option name="METHOD_NAME" value="testConservativeShortestPath(DirectedGraph)" />
+      <option name="MAIN_CLASS_NAME" value="MSTTests" />
+      <option name="METHOD_NAME" value="testMSTMethods(UndirectedGraph)" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ConservativeTests.testConservativeShortestPath.[1] DirectedGraph@4461c7e3" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="GraphsPlayGround" />
+    <configuration name="MSTTests.testMSTMethods.[7] UndirectedGraph@2e53b094" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="graph-playground" />
       <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="ConservativeTests" />
-      <option name="METHOD_NAME" value="testConservativeShortestPath(DirectedGraph)" />
+      <option name="MAIN_CLASS_NAME" value="MSTTests" />
+      <option name="METHOD_NAME" value="testMSTMethods(UndirectedGraph)" />
       <option name="TEST_OBJECT" value="uniqueId" />
       <uniqueIds>
-        <uniqueId value="[engine:junit-jupiter]/[class:ConservativeTests]/[test-template:testConservativeShortestPath(DirectedGraph)]/[test-template-invocation:#1]" />
+        <uniqueId value="[engine:junit-jupiter]/[class:MSTTests]/[test-template:testMSTMethods(UndirectedGraph)]/[test-template-invocation:#7]" />
       </uniqueIds>
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ConservativeTests.testDifferentStrategies" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="GraphsPlayGround" />
+    <configuration name="MSTTests.testMSTSameWeight" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="graph-playground" />
       <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="ConservativeTests" />
-      <option name="METHOD_NAME" value="testDifferentStrategies(DirectedGraph)" />
+      <option name="MAIN_CLASS_NAME" value="MSTTests" />
+      <option name="METHOD_NAME" value="testMSTSameWeight(UndirectedGraph)" />
       <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MSTTests.testMSTSameWeight.[4] UndirectedGraph@3e6ef8ad" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="graph-playground" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="MSTTests" />
+      <option name="METHOD_NAME" value="testMSTSameWeight(UndirectedGraph)" />
+      <option name="TEST_OBJECT" value="uniqueId" />
+      <uniqueIds>
+        <uniqueId value="[engine:junit-jupiter]/[class:MSTTests]/[test-template:testMSTSameWeight(UndirectedGraph)]/[test-template-invocation:#4]" />
+      </uniqueIds>
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.ConservativeTests.testDifferentStrategies" />
-        <item itemvalue="Application.Main" />
-        <item itemvalue="JUnit.ConservativeTests.testAcyclicShortestPathExample" />
-        <item itemvalue="JUnit.ConservativeTests.testConservativeShortestPath.[1] DirectedGraph@4461c7e3" />
-        <item itemvalue="JUnit.ConservativeTests.testConservativeShortestPath" />
+        <item itemvalue="JUnit.MSTTests.benchmarkMSTMethods" />
+        <item itemvalue="JUnit.MSTTests.testMSTMethods" />
+        <item itemvalue="JUnit.MSTTests.testMSTSameWeight" />
+        <item itemvalue="JUnit.MSTTests.testMSTSameWeight.[4] UndirectedGraph@3e6ef8ad" />
+        <item itemvalue="JUnit.MSTTests.testMSTMethods.[7] UndirectedGraph@2e53b094" />
       </list>
     </recent_temporary>
   </component>
@@ -180,7 +205,19 @@
       <workItem from="1762377601511" duration="786000" />
       <workItem from="1762418251834" duration="13497000" />
       <workItem from="1762467437220" duration="5462000" />
-      <workItem from="1762534672432" duration="19155000" />
+      <workItem from="1762534672432" duration="19696000" />
+      <workItem from="1762598018120" duration="3537000" />
+      <workItem from="1762601601739" duration="6349000" />
+      <workItem from="1762695810804" duration="6195000" />
+      <workItem from="1762716958935" duration="3718000" />
+      <workItem from="1762775347458" duration="14100000" />
+      <workItem from="1762892044570" duration="10099000" />
+      <workItem from="1762940432262" duration="24336000" />
+      <workItem from="1763042803724" duration="14749000" />
+      <workItem from="1766319686309" duration="1828000" />
+      <workItem from="1769789857707" duration="797000" />
+      <workItem from="1769889409777" duration="1227000" />
+      <workItem from="1769938619982" duration="22000" />
     </task>
     <task id="LOCAL-00001" summary="Got getAugmentatingNetwork compiled">
       <option name="closed" value="true" />
@@ -246,7 +283,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762562099884</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="clean up warnings">
+      <option name="closed" value="true" />
+      <created>1762562583144</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1762562583144</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -274,6 +319,14 @@
           <properties class="java.lang.NullPointerException" package="java.lang" />
           <option name="timeStamp" value="63" />
         </breakpoint>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.ClassCastException" package="java.lang" />
+          <option name="timeStamp" value="81" />
+        </breakpoint>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.UnsupportedOperationException" package="java.lang" />
+          <option name="timeStamp" value="82" />
+        </breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <condition expression="!augMinEdgesOriginals.containsAll(reachableEdges) &amp;&amp; !reachableEdges.containsAll(augMinEdgesOriginals)" language="JAVA" />
           <url>file://$PROJECT_DIR$/test/NetworkTests.java</url>
@@ -296,14 +349,30 @@
           <option name="timeStamp" value="69" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/DirectedGraph.java</url>
-          <line>185</line>
-          <option name="timeStamp" value="74" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/Helpers.java</url>
           <line>238</line>
           <option name="timeStamp" value="79" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/Graph.java</url>
+          <line>165</line>
+          <option name="timeStamp" value="86" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/Graph.java</url>
+          <line>128</line>
+          <option name="timeStamp" value="90" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/test/MSTTests.java</url>
+          <line>70</line>
+          <option name="timeStamp" value="95" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <condition expression="!Collections.disjoint(nodeSetOfA, nodeSetOfB)" language="JAVA" />
+          <url>file://$PROJECT_DIR$/src/UndirectedGraph.java</url>
+          <line>155</line>
+          <option name="timeStamp" value="104" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/Helpers.java</url>
@@ -323,15 +392,27 @@
           </properties>
           <option name="timeStamp" value="57" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/src/DirectedGraph.java</url>
+          <line>68</line>
+          <properties class="DirectedGraph" method="clearMemory">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="80" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>
       <configuration name="JUnit">
-        <watch expression="network" />
-        <watch expression="random.seed" />
-        <watch expression="current.toString()" language="JAVA" />
-        <watch expression="inc_flow_unit_tuple.toString()" language="JAVA" />
-        <watch expression="endNode.getIncomingEdges()" language="JAVA" />
+        <watch expression="subTreeNodeSets" language="JAVA" />
+        <watch expression="minForest.getTotalWeight()" language="JAVA" />
+        <watch expression="minForest.edges" language="JAVA" />
+        <watch expression="e.clone(aSub, bSub)" language="JAVA" />
+        <watch expression="queue" />
+        <watch expression="currentNode.toString()" language="JAVA" />
+        <watch expression="node.toString()" language="JAVA" />
+        <watch expression="neighbour.toString()" language="JAVA" />
       </configuration>
       <configuration name="Application">
         <watch expression="current.toString()" language="JAVA" />

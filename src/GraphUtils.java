@@ -1,6 +1,7 @@
 import java.util.*;
-import java.util.function.*;
-import java.util.stream.Collectors;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class GraphUtils {
 
@@ -373,6 +374,40 @@ public class GraphUtils {
                 // Basic probability check
                 if (random.nextDouble() < edgeProbability) {
                     Edge<T> newEdge = new Edge<T>(from, to);
+                    double weight = weightFactory.apply(random, newEdge);
+                    newEdge.setWeight(weight);
+                    graph.addExistingEdge(newEdge);
+                }
+            }
+        }
+
+        return graph;
+    }
+    public static <T> UndirectedGraph<T, UndirectedEdge<T>> generateRandomUndirectedGraph(
+            int nodeCount,
+            double edgeProbability,
+            Random random,
+            BiFunction<Integer, Integer, T> nodeValueFactory,
+            BiFunction<Random, Edge<T>, Double> weightFactory,
+            boolean selfLoops
+    ) {
+        UndirectedGraph<T, UndirectedEdge<T>> graph = new UndirectedGraph<>();
+
+        List<Node<T>> nodes = new ArrayList<>();
+        for (int i = 0; i < nodeCount; i++) {
+            nodes.add(graph.addNode(nodeValueFactory.apply(i, nodeCount)));
+        }
+
+        for (int i = 0; i < nodeCount; i++) {
+            for (int j = i; j < nodeCount; j++) {
+                if (!selfLoops && i == j) continue; // no self-loops
+
+                Node<T> from = nodes.get(i);
+                Node<T> to = nodes.get(j);
+
+                // Basic probability check
+                if (random.nextDouble() < edgeProbability) {
+                    UndirectedEdge<T> newEdge = new UndirectedEdge<T>(from, to);
                     double weight = weightFactory.apply(random, newEdge);
                     newEdge.setWeight(weight);
                     graph.addExistingEdge(newEdge);

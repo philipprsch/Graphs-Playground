@@ -17,8 +17,8 @@ public class ConservativeTests {
         //Network<String, Edge<String>> network = ;
         //return Stream.of(Arguments.of(network));
         return Stream.iterate(0, n -> n).map(n -> Arguments.of(GraphUtils.generateRandomDirectedGraph(
-                150,          // number of nodes
-                0.5,        // probability of edge
+                300,          // number of nodes
+                0.6,        // probability of edge
                 random,         // seed for reproducibility
                 (i, nodeCount) -> (i == 0 ? "S" : (i == nodeCount -1 ? "T" : "V" + i)),
                 (random, edge) -> Math.round((random.nextDouble(7.0) - 5.0) * 100.0) / 100.0,
@@ -83,6 +83,30 @@ public class ConservativeTests {
         } else {
             System.out.println("No path.");
         }
+    }
+    @ParameterizedTest
+    @MethodSource("getRandomGraphs")
+    void benchmarkDifferentStrategies(DirectedGraph<String, Edge<String>> graph) {
+        measureAndPrint("ForkJoinPool", () -> graph.shortestConservativePath("S", "T", DirectedGraph.ExecutionStrategy.ForkJoinPool));
+
+        long used = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024*1024);
+        long max  = Runtime.getRuntime().maxMemory() / (1024*1024);
+        System.out.printf("Used: %d MB, Max: %d MB%n", used, max);
+
+        graph.clearMemory(); //Clear all cached shortest paths in the conservative helper graph (previously calculated and stored) and the helper graph itself
+
+        measureAndPrint("ExecutorService", () -> graph.shortestConservativePath("S", "T", DirectedGraph.ExecutionStrategy.ExecutorService));
+
+        used = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024*1024);
+        max  = Runtime.getRuntime().maxMemory() / (1024*1024);
+        System.out.printf("Used: %d MB, Max: %d MB%n", used, max);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getRandomGraphs")
+    void profileForkJoinPool(DirectedGraph<String, Edge<String>> graph) {
+        Path<String> sp = graph.shortestConservativePath("S", "T", DirectedGraph.ExecutionStrategy.ForkJoinPool);
+        System.out.println(sp.toString());
     }
 
     @Test

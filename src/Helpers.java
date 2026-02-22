@@ -1,7 +1,7 @@
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -195,6 +195,28 @@ public class Helpers {
         }
         return text;
     }
+    public static <T> List<T> topN(Collection<T> input, int n, Comparator<? super T> comparator) {
+        if (n <= 0) return Collections.emptyList();
+        if (input == null || input.isEmpty()) return Collections.emptyList();
+
+        // Max-heap for smallest N, Min-heap for largest N depending on comparator
+        PriorityQueue<T> heap = new PriorityQueue<>(n, comparator);
+
+        for (T element : input) {
+            if (heap.size() < n) {
+                heap.offer(element);
+            } else if (comparator.compare(element, heap.peek()) > 0) {
+                heap.poll(); // remove smallest in heap
+                heap.offer(element);
+            }
+        }
+
+        // Convert heap to sorted list (.reversed() for descending order for top largest)
+        List<T> result = new ArrayList<>(heap);
+        result.sort(comparator);
+        return result;
+    }
+
     public static void main(String[] args) {
 //        traverseNonDecTuplesNonRec(31, 82, (tuple) -> {
 //            System.out.println(tuple);
